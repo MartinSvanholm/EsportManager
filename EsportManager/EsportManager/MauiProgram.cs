@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using EsportManager.Data;
+using Microsoft.Extensions.Logging;
+using MudBlazor.Services;
 
 namespace EsportManager
 {
@@ -15,9 +17,18 @@ namespace EsportManager
                 });
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddMudServices()
+                .AddMudBlazorSnackbar((config) =>
+                {
+                    config.PreventDuplicates = true;
+                    config.ClearAfterNavigation = true;
+                    config.PositionClass = "object-left-bottom";
+                });
+
+            builder.Services.AddSingleton<IDatabase, SqliteDatabase>();
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
 

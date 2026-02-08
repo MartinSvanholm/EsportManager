@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace EsportManager
+namespace EsportManager.Platforms.iOS
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

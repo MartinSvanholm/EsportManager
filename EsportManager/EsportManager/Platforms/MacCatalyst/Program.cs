@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace EsportManager
+namespace EsportManager.Platforms.MacCatalyst
 {
     public class Program
     {
