@@ -1,0 +1,11 @@
+IP Address,Computer Name,MAC Address,Network Adapter Company,User Text,Status,Workgroup,Broadcast Address,Port Number,Multiple Packets,Index
+192.168.1.1,,FC-22-F4-B8-EF-30,Zyxel Communications Corporation,,Unknown,,,,,1
+192.168.1.32,Martin-Laptop,5C-80-B6-9E-86-99,Intel Corporate,,Unknown,,,,,10
+192.168.1.89,,78-28-CA-C4-4F-5E,"Sonos, Inc.",,Unknown,,,,,3
+192.168.1.102,,00-7C-2D-E7-0A-3A,"Samsung Electronics Co.,Ltd",,Unknown,,,,,4
+192.168.1.149,,AC-5C-2C-62-2A-A5,"Apple, Inc.",,Unknown,,,,,5
+192.168.1.151,,D4-F0-57-C8-36-21,"Nintendo Co.,Ltd",,Unknown,,,,,6
+192.168.1.202,,48-A6-B8-3B-EC-5F,"Sonos, Inc.",,Unknown,,,,,2
+192.168.1.206,,EC-B5-FA-1E-FE-43,Philips Lighting BV,,Unknown,,,,,7
+192.168.1.207,host.docker.internal,B4-2E-99-F3-53-3D,"GIGA-BYTE TECHNOLOGY CO.,LTD.",,Unknown,,,,,8
+192.168.1.239,,E0-03-6B-70-2B-2C,"Samsung Electronics Co.,Ltd",,Unknown,,,,,9
