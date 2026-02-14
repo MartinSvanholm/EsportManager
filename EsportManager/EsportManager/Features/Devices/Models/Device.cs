@@ -1,5 +1,7 @@
 ﻿using CliWrap;
+using CliWrap.EventStream;
 using MudBlazor;
+using System.Diagnostics;
 using System.Net;
 
 namespace EsportManager.Features.Devices.Models;
@@ -59,6 +61,48 @@ public class Device
         {
             snackbar.Add(e.Message, Severity.Error);
         }
+    }
+
+    public async Task UpdateFortnite(ISnackbar snackbar)
+    {
+        try
+        {
+            string sharedFolderPath = GetSharedFolderPath();
+
+            var cmd = Cli.Wrap($"robocopy")
+                .WithWorkingDirectory(Environment.CurrentDirectory)
+                .WithArguments($"\\\\HVKSERVER\\Fortnite ${sharedFolderPath} /MIR /XF *.mancpn *.manifest");
+
+            await foreach (var cmdEvent in cmd.ListenAsync())
+            {
+                switch (cmdEvent)
+                {
+                    case StartedCommandEvent started:
+                        Debug.WriteLine($"Process started; ID: {started.ProcessId}");
+                        break;
+                    case StandardOutputCommandEvent stdOut:
+                        Debug.WriteLine($"Out> {stdOut.Text}");
+                        break;
+                    case StandardErrorCommandEvent stdErr:
+                        Debug.WriteLine($"Err> {stdErr.Text}");
+                        break;
+                    case ExitedCommandEvent exited:
+                        Debug.WriteLine($"Process exited; Code: {exited.ExitCode}");
+                        break;
+                }
+            }
+
+            snackbar.Add("updating fortnite", Severity.Info);
+        }
+        catch (Exception e)
+        {
+            snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    public string GetSharedFolderPath()
+    {
+        return $"\\\\MARTIN-DESKTOP\\Fortnite";
     }
 
     public enum StateEnum

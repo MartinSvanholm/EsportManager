@@ -43,10 +43,7 @@
         <MudTd DataLabel="Mac adress">@context.MACAdress</MudTd>
         <MudTd>
             <MudStack Row Justify="Justify.FlexEnd" Class="mr-3">
-                @if (context.ShowUpdateFortniteBtn)
-                {
-                    <MudTooltip Text="Update fortnite" Placement="Placement.Top"><MudIconButton Icon="@Icons.Material.Filled.Update" Class="pa-0" /></MudTooltip>
-                }
+                <MudTooltip Text="Update fortnite" Placement="Placement.Top"><MudIconButton OnClick="() => context.UpdateFortnite(_snackbar)" Icon="@Icons.Material.Filled.Update" Class="pa-0" /></MudTooltip>
                 @if (context.ShowPowerOnBtn)
                 {
                     <MudTooltip Text="Turn on" Placement="Placement.Top"><MudIconButton OnClick="() => context.TurnOn(_snackbar)" Icon="@Icons.Material.Filled.Power" Class="pa-0" /></MudTooltip>
