@@ -8,7 +8,7 @@
 @inject ISnackbar _snackbar
 
 <MudTable T="Device" 
-    ServerData="ScanForDevices" 
+    ServerData="GetDevices"
     @bind-SelectedItems="SelectedDevices" 
     Class="ma-5" 
     MultiSelection 
@@ -16,14 +16,14 @@
     SelectOnRowClick="false" 
     Dense 
     LoadingContentBody="loadingContentBody"
-    @ref="Table">
+    @ref="Table" Loading="IsScanning">
     <ToolBarContent>
         <MudStack Row Justify="Justify.SpaceBetween" Style="width: 100%">
             <MudStack Row>
                 <MudText Typo="Typo.h6">Devices</MudText>
                 <MudTextField T="string" Value="SearchValue" ValueChanged="OnSearch" Placeholder="Search" Adornment="Adornment.Start"
                               AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable Disabled="IsScanning" />
-                <MudTooltip Text="Scan network for devices" Placement="Placement.Top"><MudIconButton OnClick="Refresh" Icon="@Icons.Material.Filled.CloudSync" Size="Size.Medium" Class="pa-0" /></MudTooltip>
+                <MudTooltip Text="Scan network for devices" Placement="Placement.Top"><MudIconButton OnClick="ScanForDevices" Icon="@Icons.Material.Filled.CloudSync" Size="Size.Medium" Class="pa-0" /></MudTooltip>
             </MudStack>
             <MudStack Row>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary">Update fortnite on selected devices</MudButton>
@@ -89,8 +89,6 @@
 </MudTable>
 
 @code {
-    private List<Device> Devices { get; set; } = [];
-
     private HashSet<Device> SelectedDevices { get; set; } = [];
 
     private CancellationTokenSource ForniteUpdateCancellationTokenSource = new();
@@ -136,44 +134,56 @@
 
     private MudTable<Device> Table { get; set; }
 
-    private async Task<TableData<Device>> ScanForDevices(TableState state, CancellationToken token)
+    private async Task<TableData<Device>> GetDevices(TableState state, CancellationToken token)
+    {
+        List<Device> devices = [];
+        string devicesFilePath = Path.Combine(Environment.CurrentDirectory, "devices");
+
+        if (!File.Exists(devicesFilePath))
+        {
+            return new TableData<Device> { TotalItems = devices.Count, Items = devices };
+        }
+
+        string[] lines = await File.ReadAllLinesAsync(devicesFilePath, token);
+        foreach (string line in lines.Skip(1))
+        {
+            devices.Add(new Device(line));
+        }
+
+        if (!string.IsNullOrEmpty(SearchValue))
+        {
+            devices = devices.Where(d => d.Name.Contains(SearchValue)).ToList();
+        }
+
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                devices = devices.OrderByDirection(state.SortDirection, o => o.Name).ToList();
+                break;
+        }
+
+        return new TableData<Device> { TotalItems = devices.Count, Items = devices };
+    }
+
+    private async Task ScanForDevices()
     {
         IsScanning = true;
-        List<Device> devices = Devices;
 
         try
         {
-            if (devices.Count == 0)
-            {
-                var searchResult = await Cli.Wrap("WakeMeOnLan.exe")
-                    .WithWorkingDirectory(Environment.CurrentDirectory)
-                    .WithArguments("/scan")
-                    .ExecuteAsync(token);
+            File.Delete(Path.Combine(Environment.CurrentDirectory, "devices"));
+            Table?.Items = [];
+            StateHasChanged();
 
-                var saveResult = await Cli.Wrap("WakeMeOnLan.exe")
-                    .WithWorkingDirectory(Environment.CurrentDirectory)
-                    .WithArguments("/scomma devices")
-                    .ExecuteAsync(token);
+            var searchResult = await Cli.Wrap("WakeMeOnLan.exe")
+                .WithWorkingDirectory(Environment.CurrentDirectory)
+                .WithArguments("/scan")
+                .ExecuteAsync();
 
-                string[] lines = await File.ReadAllLinesAsync(Path.Combine(Environment.CurrentDirectory, "devices"));
-
-                foreach (string line in lines.Skip(1))
-                {
-                    devices.Add(new Device(line));
-                }                
-            }
-
-            if (!string.IsNullOrEmpty(SearchValue))
-            {
-                devices = devices.Where(d => d.Name.Contains(SearchValue)).ToList();
-            }
-
-            switch (state.SortLabel)
-            {
-                case "name_field":
-                    devices = devices.OrderByDirection(state.SortDirection, o => o.Name).ToList();
-                    break;
-            }
+            var saveResult = await Cli.Wrap("WakeMeOnLan.exe")
+                .WithWorkingDirectory(Environment.CurrentDirectory)
+                .WithArguments("/scomma devices")
+                .ExecuteAsync();
         }
         catch (Exception e)
         {
@@ -182,20 +192,12 @@
 
         IsScanning = false;
 
-        return new TableData<Device> { TotalItems = devices.Count, Items = devices };
+        await Table.ReloadServerData();
     }
 
     private async Task OnSearch(string searchValue)
     {
         SearchValue = searchValue;
-
-        await Table.ReloadServerData();
-    }
-
-    private async Task Refresh()
-    {
-        SearchValue = string.Empty;
-        Devices = [];
 
         await Table.ReloadServerData();
     }
