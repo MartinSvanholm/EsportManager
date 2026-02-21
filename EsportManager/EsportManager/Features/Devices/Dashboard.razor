@@ -43,20 +43,57 @@
         <MudTd DataLabel="Mac adress">@context.MACAdress</MudTd>
         <MudTd>
             <MudStack Row Justify="Justify.FlexEnd" Class="mr-3">
-                <MudTooltip Text="Update fortnite" Placement="Placement.Top"><MudIconButton OnClick="() => context.UpdateFortnite(_snackbar)" Icon="@Icons.Material.Filled.Update" Class="pa-0" /></MudTooltip>
-                @if (context.ShowPowerOnBtn)
-                {
-                    <MudTooltip Text="Turn on" Placement="Placement.Top"><MudIconButton OnClick="() => context.TurnOn(_snackbar)" Icon="@Icons.Material.Filled.Power" Class="pa-0" /></MudTooltip>
-                }
+                <MudTooltip Text="Update fortnite" Placement="Placement.Top"><MudIconButton OnClick="() => UpdateFortnite(context)" Icon="@Icons.Material.Filled.Update" Class="pa-0" Color="Color.Primary" /></MudTooltip>
+                <MudTooltip Text="Turn on" Placement="Placement.Top"><MudIconButton OnClick="() => context.TurnOn(_snackbar)" Icon="@Icons.Material.Filled.Power" Class="pa-0" /></MudTooltip>
+                <MudTooltip Text="Show details" Placement="Placement.Top"><MudIconButton OnClick="() => context.ShowDetails = !context.ShowDetails" Icon="@Icons.Material.Filled.KeyboardArrowDown" Class="pa-0" /></MudTooltip>
             </MudStack>
         </MudTd>
     </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <MudTr>
+                <td colspan="5">
+                    <MudCard>
+                        <MudCardHeader Class="pb-0">
+                            <CardHeaderContent>
+                                <MudStack Row AlignItems="AlignItems.Center">
+                                    <MudText Typo="Typo.h6"><b>@context.Name</b></MudText>
+                                    @if (context.Process != null && context.Process.IsRunning)
+                                    {
+                                        <MudTooltip Text="Stop update" Placement="Placement.Top"><MudIconButton onclick="() => ForniteUpdateCancellationTokenSource.Cancel()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
+                                    }
+                                </MudStack>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            @if (context.Process != null && context.Process.IsRunning)
+                            {
+                                <MudStack Spacing="0" Row>
+                                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Computer" />
+                                    <MudText Class="mx-2">Process id:</MudText>
+                                    <MudText>@context.Process?.Id</MudText>
+                                </MudStack>
+                                <MudStack Spacing="0" Row>
+                                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.ShortText" />
+                                    <MudText Class="mx-2">Update status message:</MudText>
+                                    <MudText>@context.Process?.StatusMessage</MudText>
+                                </MudStack>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </td>
+            </MudTr>
+        }
+    </ChildRowContent>
 </MudTable>
 
 @code {
     private List<Device> Devices { get; set; } = [];
 
     private HashSet<Device> SelectedDevices { get; set; } = [];
+
+    private CancellationTokenSource ForniteUpdateCancellationTokenSource = new();
 
     private string SearchValue
     {
@@ -161,5 +198,13 @@
         Devices = [];
 
         await Table.ReloadServerData();
+    }
+
+    private async Task UpdateFortnite(Device device)
+    {
+        ForniteUpdateCancellationTokenSource = new();
+        CancellationToken token = ForniteUpdateCancellationTokenSource.Token;
+
+        await device.UpdateFortnite(token, _snackbar, StateHasChanged);
     }
 }
