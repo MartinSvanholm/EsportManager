@@ -1,7 +1,5 @@
 ﻿using CliWrap;
-using CliWrap.EventStream;
 using MudBlazor;
-using System.Diagnostics;
 using System.Net;
 
 namespace EsportManager.Features.Devices.Models;
@@ -44,7 +42,6 @@ public class Device
     public DeviceStatus Status { get; set; }
     public DeviceProcess? Process { get; set; }
     public bool ShowDetails { get; set; }
-    private string logPath => $@"{Environment.CurrentDirectory}\Logs\{Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
 
     public async Task TurnOn(ISnackbar snackbar)
     {
@@ -63,59 +60,21 @@ public class Device
         }
     }
 
-    public async Task UpdateFortnite(CancellationToken cancellationToken, ISnackbar snackbar, Action processChangedCallback)
+    public void UpdateFortnite(CancellationToken cancellationToken, Action processChangedCallback)
     {
-        try
-        {
-            ShowDetails = true;
+        ShowDetails = true;
 
-            string sharedFolderPath = GetSharedFolderPath();
+        string sharedFolderPath = GetSharedFolderPath();
 
-            Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
+        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
+        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
 
-            var cmd = Cli.Wrap($"robocopy")
-                .WithWorkingDirectory(Environment.CurrentDirectory)
-                .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /XF *.mancpn *.manifest");
+        var cmd = Cli.Wrap($"robocopy")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /XF *.mancpn *.manifest");
 
-            await foreach (var cmdEvent in cmd.ListenAsync(cancellationToken))
-            {
-                switch (cmdEvent)
-                {
-                    case StartedCommandEvent started:
-                        Process = new DeviceProcess(started.ProcessId);
-                        Process.ProcessChanged += processChangedCallback;
-                        Process?.SetMessage($"Process started; ID: {started.ProcessId}", logPath);
-                        Debug.WriteLine($"Process started; ID: {started.ProcessId}");
-                        break;
-                    case StandardOutputCommandEvent stdOut:
-                        Process?.SetMessage(stdOut.Text, logPath);
-                        Debug.WriteLine($"Out> {stdOut.Text}");
-                        if (stdOut.Text.Contains("ERROR 1326") || stdOut.Text.Contains("ERROR 1909"))
-                        {
-                            Process?.CancelProcess(logPath);
-                            Process?.ProcessChanged -= processChangedCallback;
-                        }
-                        break;
-                    case StandardErrorCommandEvent stdErr:
-                        Process?.SetErrorMessage(stdErr.Text, logPath);
-                        break;
-                    case ExitedCommandEvent exited:
-                        Debug.WriteLine($"Process exited; Code: {exited.ExitCode}");
-                        break;
-                }
-            }
-
-            snackbar.Add("updating fortnite", Severity.Info);
-        }
-        catch (OperationCanceledException)
-        {
-            Process?.CancelProcess(logPath);
-            Process?.ProcessChanged -= processChangedCallback;
-        }
-        catch (Exception e)
-        {
-            snackbar.Add(e.Message, Severity.Error);
-        }
+        Process = new(cmd, processChangedCallback, logPath);
+        Process.StartProcess(cancellationToken);
     }
 
     public string GetSharedFolderPath()

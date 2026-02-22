@@ -6,6 +6,7 @@
 @using System.Net
 @using EsportManager
 @inject ISnackbar _snackbar
+@implements IDisposable
 
 <MudTable T="Device" 
     ServerData="GetDevices"
@@ -67,13 +68,51 @@
                             </CardHeaderContent>
                         </MudCardHeader>
                         <MudCardContent>
-                            @if (context.Process != null && context.Process.IsRunning)
+                            @if (context.Process != null)
                             {
                                 <MudStack Spacing="0" Row>
                                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Computer" />
                                     <MudText Class="mx-2">Process id:</MudText>
                                     <MudText>@context.Process?.Id</MudText>
                                 </MudStack>
+                                @switch (context.Process.Status)
+                                {
+                                    case DeviceProcess.ProcessStatusEnum.Initialized:
+                                        <MudStack Spacing="0" Row>
+                                            <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Start" />
+                                            <MudText Class="mx-2">Status:</MudText>
+                                            <MudText>Initialized</MudText>
+                                        </MudStack>
+                                        break;
+                                    case DeviceProcess.ProcessStatusEnum.Running:
+                                        <MudStack Spacing="0" Row>
+                                            <MudProgressCircular Color="Color.Info" Value="context.Process.Progress" Indeterminate="context.Process.Progress == 0" Size="Size.Small" />
+                                            <MudText Class="mx-2">Status:</MudText>
+                                            <MudText>Running</MudText>
+                                        </MudStack>
+                                        break;
+                                    case DeviceProcess.ProcessStatusEnum.Finished:
+                                        <MudStack Spacing="0" Row>
+                                            <MudIcon Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.Done" />
+                                            <MudText Class="mx-2">Status:</MudText>
+                                            <MudText>Finished</MudText>
+                                        </MudStack>
+                                        break;
+                                    case DeviceProcess.ProcessStatusEnum.FinishedWithError:
+                                        <MudStack Spacing="0" Row>
+                                            <MudIcon Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Filled.Error" />
+                                            <MudText Class="mx-2">Status:</MudText>
+                                            <MudText>Finished with error</MudText>
+                                        </MudStack>
+                                        break;
+                                    case DeviceProcess.ProcessStatusEnum.CancelledByUser:
+                                        <MudStack Spacing="0" Row>
+                                            <MudIcon Color="Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.Cancel" />
+                                            <MudText Class="mx-2">Status:</MudText>
+                                            <MudText>Cancelled by user</MudText>
+                                        </MudStack>
+                                        break;
+                                }
                                 <MudStack Spacing="0" Row>
                                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.ShortText" />
                                     <MudText Class="mx-2">Update status message:</MudText>
@@ -133,6 +172,16 @@
     ;
 
     private MudTable<Device> Table { get; set; }
+
+    public void Dispose()
+    {
+        ForniteUpdateCancellationTokenSource.Cancel();
+
+        foreach (Device device in Table.Items ?? [])
+        {
+            device.Process?.Dispose();
+        }
+    }
 
     private async Task<TableData<Device>> GetDevices(TableState state, CancellationToken token)
     {
@@ -207,6 +256,6 @@
         ForniteUpdateCancellationTokenSource = new();
         CancellationToken token = ForniteUpdateCancellationTokenSource.Token;
 
-        await device.UpdateFortnite(token, _snackbar, StateHasChanged);
+        device.UpdateFortnite(token, StateHasChanged);
     }
 }
