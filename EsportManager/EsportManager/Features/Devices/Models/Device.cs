@@ -75,7 +75,7 @@ public class Device
 
             var cmd = Cli.Wrap($"robocopy")
                 .WithWorkingDirectory(Environment.CurrentDirectory)
-                .WithArguments($@"\\Martin-Desktop\Fortnite {sharedFolderPath} /MIR /XF *.mancpn *.manifest");
+                .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /XF *.mancpn *.manifest");
 
             await foreach (var cmdEvent in cmd.ListenAsync(cancellationToken))
             {
