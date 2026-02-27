@@ -29,7 +29,7 @@ public class DeviceProcess : IDisposable
         Status = ProcessStatusEnum.Initialized;
         StatusMessage = "Process initialized";
 
-        UpdateTimer = new System.Timers.Timer(2000);
+        UpdateTimer = new System.Timers.Timer(1000);
         UpdateTimer.Elapsed += async (sender, args) => OnProcessChanged();
     }
 
