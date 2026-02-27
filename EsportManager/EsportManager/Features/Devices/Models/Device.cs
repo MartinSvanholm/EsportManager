@@ -71,7 +71,7 @@ public class Device
 
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\MARTIN-DESKTOP\Fortnite {sharedFolderPath} /MIR /Z /FFT /XF *.mancpn *.manifest")
+            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /Z /FFT /XF *.mancpn *.manifest")
             .WithValidation(CommandResultValidation.None);
 
         Process = new(cmd, processChangedCallback, logPath);
