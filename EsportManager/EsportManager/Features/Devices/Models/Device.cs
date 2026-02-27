@@ -60,7 +60,7 @@ public class Device
         }
     }
 
-    public void UpdateFortnite(CancellationToken cancellationToken, Action processChangedCallback)
+    public void UpdateFortnite(CancellationToken cancellationToken, Func<Task> processChangedCallback)
     {
         ShowDetails = true;
 
@@ -71,7 +71,8 @@ public class Device
 
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /XF *.mancpn *.manifest");
+            .WithArguments($@"\\MARTIN-DESKTOP\Fortnite {sharedFolderPath} /MIR /Z /FFT /XF *.mancpn *.manifest")
+            .WithValidation(CommandResultValidation.None);
 
         Process = new(cmd, processChangedCallback, logPath);
         Process.StartProcess(cancellationToken);

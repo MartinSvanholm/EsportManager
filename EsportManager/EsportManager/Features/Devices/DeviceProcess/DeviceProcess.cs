@@ -7,7 +7,7 @@ namespace EsportManager.Features.Devices.Models;
 
 public class DeviceProcess : IDisposable
 {
-    public DeviceProcess(CliWrap.Command command, Action processChangedCallback)
+    public DeviceProcess(CliWrap.Command command, Func<Task> processChangedCallback)
     {
         Command = command;
         ProcessChanged += processChangedCallback;
@@ -15,9 +15,12 @@ public class DeviceProcess : IDisposable
 
         Status = ProcessStatusEnum.Initialized;
         StatusMessage = "Process initialized";
+
+        UpdateTimer = new System.Timers.Timer(1000);
+        UpdateTimer.Elapsed += async (sender, args) => OnProcessChanged();
     }
 
-    public DeviceProcess(CliWrap.Command command, Action processChangedCallback, string logPath)
+    public DeviceProcess(CliWrap.Command command, Func<Task> processChangedCallback, string logPath)
     {
         Command = command;
         ProcessChanged += processChangedCallback;
@@ -25,6 +28,9 @@ public class DeviceProcess : IDisposable
 
         Status = ProcessStatusEnum.Initialized;
         StatusMessage = "Process initialized";
+
+        UpdateTimer = new System.Timers.Timer(2000);
+        UpdateTimer.Elapsed += async (sender, args) => OnProcessChanged();
     }
 
     public int Id { get; private set; }
@@ -33,14 +39,14 @@ public class DeviceProcess : IDisposable
     public bool IsRunning => Status == ProcessStatusEnum.Running;
     public string StatusMessage { get; private set; }
     public int Progress { get; private set; }
-
-    public event Action? ProcessChanged;
+    public Func<Task> ProcessChanged { get; set; }
     private void OnProcessChanged()
     {
-        ProcessChanged?.Invoke();
+        ProcessChanged();
     }
 
     private string LogPath { get; set; }
+    private System.Timers.Timer UpdateTimer { get; set; }
 
     public async Task StartProcess(CancellationToken cancellationToken = default)
     {
@@ -71,12 +77,20 @@ public class DeviceProcess : IDisposable
             Status = ProcessStatusEnum.CancelledByUser;
 
             Debug.WriteLine($"Process cancelled by user: {oce.Message}");
+
+            UpdateTimer.Stop();
+            UpdateTimer.Dispose();
+
             OnProcessChanged();
         }
         catch (Exception e)
         {
             SetMessage($"An error happened: {e.Message}");
             Debug.WriteLine($"An error happened: {e.Message}");
+
+            UpdateTimer.Stop();
+            UpdateTimer.Dispose();
+
             OnProcessChanged();
         }
     }
@@ -85,6 +99,8 @@ public class DeviceProcess : IDisposable
     {
         Id = started.ProcessId;
         Status = ProcessStatusEnum.Running;
+
+        UpdateTimer.Start();
 
         SetMessage($"Process started; ID: {started.ProcessId}");
         Debug.WriteLine($"Process started; ID: {started.ProcessId}");
@@ -96,8 +112,6 @@ public class DeviceProcess : IDisposable
     {
         SetMessage($"{stdOut.Text}");
         Debug.WriteLine($"Out> {stdOut.Text}");
-
-        OnProcessChanged();
     }
 
     private void HandleStandardErrorCommandEvent(StandardErrorCommandEvent stdErr)
@@ -110,12 +124,45 @@ public class DeviceProcess : IDisposable
 
     private void HandleProcessExited(ExitedCommandEvent exited)
     {
-        Status = exited.ExitCode == 0 ? ProcessStatusEnum.Finished : ProcessStatusEnum.FinishedWithError;
-        SetMessage($"Process exited with code {exited.ExitCode}");
-        Debug.WriteLine($"Process exited with code {exited.ExitCode}");
+        Status = ProcessStatusEnum.Finished;
+        string message = $"Process exited with code {exited.ExitCode}";
+
+        switch (exited.ExitCode)
+        {
+            case 0:
+                message += ": No files were copied. No failure was met. No files were mismatched. The files already exist in the destination directory; so the copy operation was skipped.";
+                break;
+            case 1:
+                message += ": All files were copied successfully.";
+                break;
+            case 2:
+                message += ": There are some additional files in the destination directory that aren't present in the source directory. No files were copied.";
+                break;
+            case 3:
+                message += ": Some files were copied. Additional files were present. No failure was met.";
+                break;
+            case 5:
+                message += ": Some files were copied. Some files were mismatched. No failure was met.";
+                break;
+            case 6:
+                message += ": Additional files and mismatched files exist. No files were copied and no failures were met. Which means that the files already exist in the destination directory.";
+                break;
+            case 7:
+                message += ": Files were copied, a file mismatch was present, and additional files were present.";
+                break;
+            case 8:
+                message += ": Several files didn't copy.";
+                Status = ProcessStatusEnum.FinishedWithError;
+                break;
+        }
+
+        SetMessage(message);
+        Debug.WriteLine(message);
+
+        UpdateTimer.Stop();
+        UpdateTimer.Dispose();
 
         OnProcessChanged();
-        ProcessChanged.GetInvocationList().ToList().ForEach(d => ProcessChanged -= (Action)d);
     }
 
     private void SetMessage(string message)
@@ -160,7 +207,8 @@ public class DeviceProcess : IDisposable
 
     public void Dispose()
     {
-        ProcessChanged?.GetInvocationList().ToList().ForEach(d => ProcessChanged -= (Action)d);
+        UpdateTimer.Stop();
+        UpdateTimer.Dispose();
     }
 
     public enum ProcessStatusEnum

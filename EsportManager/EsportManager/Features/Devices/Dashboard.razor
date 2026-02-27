@@ -256,6 +256,6 @@
         ForniteUpdateCancellationTokenSource = new();
         CancellationToken token = ForniteUpdateCancellationTokenSource.Token;
 
-        device.UpdateFortnite(token, StateHasChanged);
+        device.UpdateFortnite(token, async () => await InvokeAsync(StateHasChanged));
     }
 }
