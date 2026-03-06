@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using CliWrap
+@using CliWrap.EventStream
 @using MudBlazor
 @using EsportManager.Features.Devices.Models
 @using System.Diagnostics
@@ -173,14 +174,12 @@
 
     private MudTable<Device> Table { get; set; }
 
+    private System.Timers.Timer RefreshTimer { get; set; } = new(500);
+
     public void Dispose()
     {
         ForniteUpdateCancellationTokenSource.Cancel();
-
-        foreach (Device device in Table.Items ?? [])
-        {
-            device.Process?.Dispose();
-        }
+        RefreshTimer.Dispose();
     }
 
     private async Task<TableData<Device>> GetDevices(TableState state, CancellationToken token)
@@ -253,9 +252,9 @@
 
     private async Task UpdateFortnite(Device device)
     {
-        ForniteUpdateCancellationTokenSource = new();
-        CancellationToken token = ForniteUpdateCancellationTokenSource.Token;
+        device.UpdateFortnite();
 
-        device.UpdateFortnite(token, async () => await InvokeAsync(StateHasChanged));
+        RefreshTimer.Elapsed += async (sender, args) => await InvokeAsync(StateHasChanged);
+        RefreshTimer.Start();
     }
 }

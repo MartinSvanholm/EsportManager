@@ -1,4 +1,5 @@
 ﻿using CliWrap;
+using CliWrap.EventStream;
 using MudBlazor;
 using System.Net;
 
@@ -42,6 +43,7 @@ public class Device
     public DeviceStatus Status { get; set; }
     public DeviceProcess? Process { get; set; }
     public bool ShowDetails { get; set; }
+    public CancellationTokenSource ProcessCancellationToken { get; set; } = new();
 
     public async Task TurnOn(ISnackbar snackbar)
     {
@@ -60,7 +62,37 @@ public class Device
         }
     }
 
-    public void UpdateFortnite(CancellationToken cancellationToken, Func<Task> processChangedCallback)
+    public async Task UpdateFortnite()
+    {
+        await CopyFortniteFiles();
+        await CopyFortniteManiFest();
+    }
+
+    public async Task CopyFortniteFiles()
+    {
+
+        ShowDetails = true;
+
+        string sharedFolderPath = GetSharedFolderPath();
+
+        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
+        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
+
+        var cmd = Cli.Wrap($"robocopy")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /COPY:DATSO /DCOPY:DAT")
+            .WithValidation(CommandResultValidation.None);
+
+        Process = new(cmd, HandlerFortniteProcessCallBack, logPath);
+        await Process.StartProcess(ProcessCancellationToken.Token);
+    }
+
+    public async Task HandlerFortniteProcessCallBack(CommandEvent commandEvent)
+    {
+
+    }
+
+    public async Task CopyFortniteManiFest()
     {
         ShowDetails = true;
 
@@ -71,11 +103,19 @@ public class Device
 
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /XF *.mancpn *.manifest")
+            .WithArguments($@"\\HVKSERVER\FortniteManifests \\{IPAddress.ToString()}\FortniteManifests /E /COPY:DATSO")
             .WithValidation(CommandResultValidation.None);
 
-        Process = new(cmd, processChangedCallback, logPath);
-        Process.StartProcess(cancellationToken);
+        Process = new(cmd, HandlerFortniteProcessCallBack, logPath);
+        await Process.StartProcess(ProcessCancellationToken.Token);
+    }
+
+    public async Task TurnOff()
+    {
+        var cmd = Cli.Wrap($"shutdown")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($@"/s /m \\{IPAddress.ToString()} /t 0 /f")
+            .WithValidation(CommandResultValidation.None);
     }
 
     public string GetSharedFolderPath()

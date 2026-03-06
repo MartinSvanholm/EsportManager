@@ -5,9 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace EsportManager.Features.Devices.Models;
 
-public class DeviceProcess : IDisposable
+public class DeviceProcess
 {
-    public DeviceProcess(CliWrap.Command command, Func<Task> processChangedCallback)
+    public DeviceProcess(CliWrap.Command command, Func<CommandEvent, Task> processChangedCallback)
     {
         Command = command;
         ProcessChanged += processChangedCallback;
@@ -15,12 +15,9 @@ public class DeviceProcess : IDisposable
 
         Status = ProcessStatusEnum.Initialized;
         StatusMessage = "Process initialized";
-
-        UpdateTimer = new System.Timers.Timer(1000);
-        UpdateTimer.Elapsed += async (sender, args) => OnProcessChanged();
     }
 
-    public DeviceProcess(CliWrap.Command command, Func<Task> processChangedCallback, string logPath)
+    public DeviceProcess(CliWrap.Command command, Func<CommandEvent, Task> processChangedCallback, string logPath)
     {
         Command = command;
         ProcessChanged += processChangedCallback;
@@ -28,9 +25,6 @@ public class DeviceProcess : IDisposable
 
         Status = ProcessStatusEnum.Initialized;
         StatusMessage = "Process initialized";
-
-        UpdateTimer = new System.Timers.Timer(1000);
-        UpdateTimer.Elapsed += async (sender, args) => OnProcessChanged();
     }
 
     public int Id { get; private set; }
@@ -39,14 +33,13 @@ public class DeviceProcess : IDisposable
     public bool IsRunning => Status == ProcessStatusEnum.Running;
     public string StatusMessage { get; private set; }
     public int Progress { get; private set; }
-    public Func<Task> ProcessChanged { get; set; }
-    private void OnProcessChanged()
+    public Func<CommandEvent, Task> ProcessChanged { get; set; }
+    private void OnProcessChanged(CommandEvent commandEvent)
     {
-        ProcessChanged();
+        ProcessChanged(commandEvent);
     }
 
     private string LogPath { get; set; }
-    private System.Timers.Timer UpdateTimer { get; set; }
 
     public async Task StartProcess(CancellationToken cancellationToken = default)
     {
@@ -78,21 +71,17 @@ public class DeviceProcess : IDisposable
 
             Debug.WriteLine($"Process cancelled by user: {oce.Message}");
 
-            UpdateTimer.Stop();
-            UpdateTimer.Dispose();
-
-            OnProcessChanged();
+            OnProcessChanged(new ExitedCommandEvent(0));
         }
         catch (Exception e)
         {
             SetMessage($"An error happened: {e.Message}");
             Debug.WriteLine($"An error happened: {e.Message}");
 
-            UpdateTimer.Stop();
-            UpdateTimer.Dispose();
-
-            OnProcessChanged();
+            OnProcessChanged(new ExitedCommandEvent(0));
         }
+
+        Debug.WriteLine($"Test");
     }
 
     private void HandleProcessStarted(StartedCommandEvent started)
@@ -100,12 +89,10 @@ public class DeviceProcess : IDisposable
         Id = started.ProcessId;
         Status = ProcessStatusEnum.Running;
 
-        UpdateTimer.Start();
-
         SetMessage($"Process started; ID: {started.ProcessId}");
         Debug.WriteLine($"Process started; ID: {started.ProcessId}");
 
-        OnProcessChanged();
+        OnProcessChanged(started);
     }
 
     private void HandleStandardOutputCommandEvent(StandardOutputCommandEvent stdOut)
@@ -119,7 +106,7 @@ public class DeviceProcess : IDisposable
         SetMessage($"{stdErr.Text}");
         Debug.WriteLine($"Err> {stdErr.Text}");
 
-        OnProcessChanged();
+        OnProcessChanged(stdErr);
     }
 
     private void HandleProcessExited(ExitedCommandEvent exited)
@@ -159,10 +146,7 @@ public class DeviceProcess : IDisposable
         SetMessage(message);
         Debug.WriteLine(message);
 
-        UpdateTimer.Stop();
-        UpdateTimer.Dispose();
-
-        OnProcessChanged();
+        OnProcessChanged(exited);
     }
 
     private void SetMessage(string message)
@@ -203,12 +187,6 @@ public class DeviceProcess : IDisposable
             default: 
                 return false;
         }
-    }
-
-    public void Dispose()
-    {
-        UpdateTimer.Stop();
-        UpdateTimer.Dispose();
     }
 
     public enum ProcessStatusEnum
