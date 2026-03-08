@@ -37,16 +37,19 @@
         <MudTh><MudTableSortLabel SortLabel="name_field" T="Device" InitialDirection="SortDirection.Descending">Name</MudTableSortLabel></MudTh>
         <MudTh>Ip adress</MudTh>
         <MudTh>Mac adress</MudTh>
+        <MudTh>Status</MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Ip adress">@context.IPAddress</MudTd>
         <MudTd DataLabel="Mac adress">@context.MACAdress</MudTd>
+        <MudTd DataLabel="Mac adress">@context.Status.ToString()</MudTd>
         <MudTd>
             <MudStack Row Justify="Justify.FlexEnd" Class="mr-3">
                 <MudTooltip Text="Update fortnite" Placement="Placement.Top"><MudIconButton OnClick="() => UpdateFortnite(context)" Icon="@Icons.Material.Filled.Update" Class="pa-0" Color="Color.Primary" /></MudTooltip>
-                <MudTooltip Text="Turn on" Placement="Placement.Top"><MudIconButton OnClick="() => context.TurnOn(_snackbar)" Icon="@Icons.Material.Filled.Power" Class="pa-0" /></MudTooltip>
+                <MudTooltip Text="Turn on" Placement="Placement.Top"><MudIconButton OnClick="async () => await TurnOnDevice(context)" Icon="@Icons.Material.Filled.Power" Class="pa-0" /></MudTooltip>
+                <MudTooltip Text="Check status" Placement="Placement.Top"><MudIconButton OnClick="() => CheckDeviceStatus(context)" Icon="@Icons.Material.Filled.WifiFind" Class="pa-0" /></MudTooltip>
                 <MudTooltip Text="Show details" Placement="Placement.Top"><MudIconButton OnClick="() => context.ShowDetails = !context.ShowDetails" Icon="@Icons.Material.Filled.KeyboardArrowDown" Class="pa-0" /></MudTooltip>
             </MudStack>
         </MudTd>
@@ -55,7 +58,7 @@
         @if (context.ShowDetails)
         {
             <MudTr>
-                <td colspan="5">
+                <td colspan="6">
                     <MudCard>
                         <MudCardHeader Class="pb-0">
                             <CardHeaderContent>
@@ -63,7 +66,7 @@
                                     <MudText Typo="Typo.h6"><b>@context.Name</b></MudText>
                                     @if (context.Process != null && context.Process.IsRunning)
                                     {
-                                        <MudTooltip Text="Stop update" Placement="Placement.Top"><MudIconButton onclick="() => ForniteUpdateCancellationTokenSource.Cancel()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
+                                        <MudTooltip Text="Stop update" Placement="Placement.Top"><MudIconButton onclick="() => context.Process.Cancel()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
                                     }
                                 </MudStack>
                             </CardHeaderContent>
@@ -116,8 +119,8 @@
                                 }
                                 <MudStack Spacing="0" Row>
                                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.ShortText" />
-                                    <MudText Class="mx-2">Update status message:</MudText>
-                                    <MudText>@context.Process?.StatusMessage</MudText>
+                                    <MudText Class="mx-2">Process output:</MudText>
+                                    <MudText>@context.Process?.Output</MudText>
                                 </MudStack>
                             }
                         </MudCardContent>
@@ -130,8 +133,6 @@
 
 @code {
     private HashSet<Device> SelectedDevices { get; set; } = [];
-
-    private CancellationTokenSource ForniteUpdateCancellationTokenSource = new();
 
     private string SearchValue
     {
@@ -178,7 +179,6 @@
 
     public void Dispose()
     {
-        ForniteUpdateCancellationTokenSource.Cancel();
         RefreshTimer.Dispose();
     }
 
@@ -220,7 +220,6 @@
         try
         {
             File.Delete(Path.Combine(Environment.CurrentDirectory, "devices"));
-            Table?.Items = [];
             StateHasChanged();
 
             var searchResult = await Cli.Wrap("WakeMeOnLan.exe")
@@ -252,9 +251,44 @@
 
     private async Task UpdateFortnite(Device device)
     {
-        device.UpdateFortnite();
+        device.UpdateFortnite(_snackbar, StateHasChanged);
 
         RefreshTimer.Elapsed += async (sender, args) => await InvokeAsync(StateHasChanged);
         RefreshTimer.Start();
+    }
+
+    private async Task TurnOnDevice(Device device)
+    {
+        var snackbar = _snackbar.Add("Waiting 30 seconds for response from device", Severity.Info, key: "ping_snackbar");
+
+        await device.TurnOn(() => PingCompletedHandler(device, snackbar));
+
+        StateHasChanged();
+    }
+
+    private void CheckDeviceStatus(Device device)
+    {
+        var snackbar = _snackbar.Add("Waiting 5 seconds for response from device", Severity.Info, key: "ping_snackbar");
+
+        device.CheckStatus(() => PingCompletedHandler(device, snackbar));
+
+        StateHasChanged();
+    }
+
+    private void PingCompletedHandler(Device device, Snackbar? snackbar)
+    {
+
+        if (device.Status == Device.StatusEnum.Online)
+        {
+            _snackbar.Remove(snackbar);
+            _snackbar.Add($"{device.Name} is online", Severity.Success);
+        }
+        else if (device.Status == Device.StatusEnum.Offline)
+        {
+            _snackbar.Remove(snackbar);
+            _snackbar.Add($"{device.Name} is offline", Severity.Error);
+        }
+
+        StateHasChanged();
     }
 }

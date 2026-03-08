@@ -1,22 +1,14 @@
 ﻿using CliWrap;
-using CliWrap.EventStream;
 using MudBlazor;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Net;
+using System.Net.NetworkInformation;
 
 namespace EsportManager.Features.Devices.Models;
 
 public class Device
 {
-    public Device(IPAddress iPAddress, string macAdress)
-    {
-        Name = string.Empty;
-        IPAddress = iPAddress ?? throw new ArgumentNullException(nameof(iPAddress));
-        MACAdress = macAdress ?? throw new ArgumentNullException(nameof(macAdress));
-
-        Status = new DeviceStatus();
-        Process = null;
-    }
-
     public Device(string csvLine)
     {
         string[] values = csvLine.Split(',');
@@ -32,45 +24,110 @@ public class Device
 
         Name = values[1];
         MACAdress = values[2];
-
-        Status = new DeviceStatus();
+        Status = StatusEnum.Offline;
         Process = null;
     }
 
     public string Name { get; set; }
     public IPAddress IPAddress { get; set; }
     public string MACAdress { get; set; }
-    public DeviceStatus Status { get; set; }
+    public StatusEnum Status { get; private set; }
     public DeviceProcess? Process { get; set; }
     public bool ShowDetails { get; set; }
-    public CancellationTokenSource ProcessCancellationToken { get; set; } = new();
 
-    public async Task TurnOn(ISnackbar snackbar)
+    public async Task TurnOn(Action statusCallback)
     {
+        ShowDetails = true;
+
+        var wakeMeOnLanCmd = Cli.Wrap($"WakeMeOnLan.exe")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($"/wakeup {MACAdress}");
+
+        Process = new DeviceProcess(wakeMeOnLanCmd);
+        await Process.Run();
+
+        Status = StatusEnum.WaitingForResponse;
+        statusCallback();
+
+        Ping pingSender = new();
+        pingSender.PingCompleted += (sender, e) =>
+        {
+            if (e?.Reply?.Status == IPStatus.Success)
+            {
+                Status = StatusEnum.Online;
+            }
+            else
+            {
+                Status = StatusEnum.Offline;
+            }
+            statusCallback();
+        };
+
+        pingSender.SendAsync(IPAddress, 30000, null);
+    }
+
+    public async Task TurnOff(ISnackbar snackbar)
+    {
+        StatusEnum previousStatus = Status;
+
         try
         {
-            var result = await Cli.Wrap($"WakeMeOnLan.exe")
+            var cmd = Cli.Wrap($"shutdown")
                 .WithWorkingDirectory(Environment.CurrentDirectory)
-                .WithArguments($"/wakeup {MACAdress}")
-                .ExecuteAsync();
-
-            snackbar.Add("Pc turning on", Severity.Info);
+                .WithArguments($@"/s /m \\{IPAddress.ToString()} /t 0 /f")
+                .WithValidation(CommandResultValidation.None);
         }
         catch (Exception e)
         {
             snackbar.Add(e.Message, Severity.Error);
         }
+
+        Status = previousStatus;
     }
 
-    public async Task UpdateFortnite()
+    public void CheckStatus(Action statusCallback)
     {
-        await CopyFortniteFiles();
-        await CopyFortniteManiFest();
+        Status = StatusEnum.WaitingForResponse;
+        statusCallback();
+
+        Ping pingSender = new();
+        pingSender.PingCompleted += (sender, e) =>
+        {
+            if (e?.Reply?.Status == IPStatus.Success)
+            {
+                Status = StatusEnum.Online;
+            }
+            else
+            {
+                Status = StatusEnum.Offline;
+            }
+            statusCallback();
+        };
+
+        pingSender.SendAsync(IPAddress, 5000,  null);
     }
 
-    public async Task CopyFortniteFiles()
+    public async Task UpdateFortnite(ISnackbar snackbar, Action commandFinshedCallback)
     {
+        StatusEnum previousStatus = Status;
 
+        try
+        {
+            Status = StatusEnum.Busy;
+
+            await CopyFortniteGameFiles();
+            await CopyFortniteManiFestFiles();
+        }
+        catch (Exception e)
+        {
+            snackbar.Add(e.Message, Severity.Error);
+        }
+
+        Status = previousStatus;
+    }
+
+    private async Task CopyFortniteGameFiles()
+    {
         ShowDetails = true;
 
         string sharedFolderPath = GetSharedFolderPath();
@@ -83,16 +140,11 @@ public class Device
             .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /COPY:DATSO /DCOPY:DAT")
             .WithValidation(CommandResultValidation.None);
 
-        Process = new(cmd, HandlerFortniteProcessCallBack, logPath);
-        await Process.StartProcess(ProcessCancellationToken.Token);
+        Process = new DeviceProcess(cmd, logPath);
+        await Process.Run();
     }
 
-    public async Task HandlerFortniteProcessCallBack(CommandEvent commandEvent)
-    {
-
-    }
-
-    public async Task CopyFortniteManiFest()
+    private async Task CopyFortniteManiFestFiles()
     {
         ShowDetails = true;
 
@@ -106,20 +158,21 @@ public class Device
             .WithArguments($@"\\HVKSERVER\FortniteManifests \\{IPAddress.ToString()}\FortniteManifests /E /COPY:DATSO")
             .WithValidation(CommandResultValidation.None);
 
-        Process = new(cmd, HandlerFortniteProcessCallBack, logPath);
-        await Process.StartProcess(ProcessCancellationToken.Token);
+        Process = new DeviceProcess(cmd, logPath);
+        await Process.Run();
     }
 
-    public async Task TurnOff()
-    {
-        var cmd = Cli.Wrap($"shutdown")
-            .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"/s /m \\{IPAddress.ToString()} /t 0 /f")
-            .WithValidation(CommandResultValidation.None);
-    }
-
-    public string GetSharedFolderPath()
+    private string GetSharedFolderPath()
     {
         return $@"\\{IPAddress.ToString()}\Fortnite";
+    }
+
+    public enum StatusEnum
+    {
+        Offline,
+        Online,
+        Busy,
+        [Description("Waiting for response")]
+        WaitingForResponse
     }
 }
