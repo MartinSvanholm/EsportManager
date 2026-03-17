@@ -135,9 +135,9 @@ public class Device
         Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
         string logPath = $@"{Environment.CurrentDirectory}\Logs\{Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
 
-        var cmd = Cli.Wrap($"robocopy")
+        var cmd = Cli.Wrap($"runas robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /COPY:DATS /DCOPY:DAT")
+            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /COPY:DATSO /DCOPY:DAT")
             .WithValidation(CommandResultValidation.None);
 
         Process = new DeviceProcess(cmd, logPath);
@@ -153,9 +153,9 @@ public class Device
         Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
         string logPath = $@"{Environment.CurrentDirectory}\Logs\{Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
 
-        var cmd = Cli.Wrap($"robocopy")
+        var cmd = Cli.Wrap($"runas robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\FortniteManifests \\{IPAddress.ToString()}\FortniteManifests /E /COPY:DATS")
+            .WithArguments($@"\\HVKSERVER\FortniteManifests \\{IPAddress.ToString()}\FortniteManifests /E /COPY:DATSO")
             .WithValidation(CommandResultValidation.None);
 
         Process = new DeviceProcess(cmd, logPath);
