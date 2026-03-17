@@ -137,7 +137,7 @@ public class Device
 
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /COPY:DATSO /DCOPY:DAT")
+            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /COPY:DATS /DCOPY:DAT")
             .WithValidation(CommandResultValidation.None);
 
         Process = new DeviceProcess(cmd, logPath);
@@ -155,7 +155,7 @@ public class Device
 
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\FortniteManifests \\{IPAddress.ToString()}\FortniteManifests /E /COPY:DATSO")
+            .WithArguments($@"\\HVKSERVER\FortniteManifests \\{IPAddress.ToString()}\FortniteManifests /E /COPY:DATS")
             .WithValidation(CommandResultValidation.None);
 
         Process = new DeviceProcess(cmd, logPath);
