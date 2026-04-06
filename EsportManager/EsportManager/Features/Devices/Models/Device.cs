@@ -1,7 +1,7 @@
 ﻿using CliWrap;
+using CliWrap.EventStream;
 using MudBlazor;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -25,15 +25,42 @@ public class Device
         Name = values[1];
         MACAdress = values[2];
         Status = StatusEnum.Offline;
-        Process = null;
+        ProcessQueue = [];
     }
 
     public string Name { get; set; }
     public IPAddress IPAddress { get; set; }
     public string MACAdress { get; set; }
     public StatusEnum Status { get; private set; }
-    public DeviceProcess? Process { get; set; }
+    public List<DeviceProcess> ProcessQueue { get; private set; }
+    public DeviceProcess? CurrentProcess => ProcessQueue?.FirstOrDefault(p => p.IsRunning);
     public bool ShowDetails { get; set; }
+
+    public void EnqueueProcess(DeviceProcess process)
+    {
+        ProcessQueue.Add(process);
+    }
+
+    public void EnqueueProcesses(List<DeviceProcess> processes)
+    {
+        ProcessQueue.AddRange(processes);
+    }
+
+    public async Task StartQueue()
+    {
+        foreach (var process in ProcessQueue)
+        {
+            if (!process.IsRunning)
+            {
+                var exited = await process.Run();
+
+                if (exited.ExitCode == -1)
+                {
+                    break;
+                }
+            }
+        }
+    }
 
     public async Task TurnOn(Action statusCallback)
     {
@@ -43,8 +70,8 @@ public class Device
             .WithWorkingDirectory(Environment.CurrentDirectory)
             .WithArguments($"/wakeup {MACAdress}");
 
-        Process = new DeviceProcess(wakeMeOnLanCmd);
-        await Process.Run();
+        //ProcessQueue.Add(new DeviceProcess(wakeMeOnLanCmd));
+        //await Process.Run();
 
         Status = StatusEnum.WaitingForResponse;
         statusCallback();
@@ -105,61 +132,6 @@ public class Device
         };
 
         pingSender.SendAsync(IPAddress, 5000,  null);
-    }
-
-    public async Task UpdateFortnite(ISnackbar snackbar, Action commandFinshedCallback)
-    {
-        StatusEnum previousStatus = Status;
-
-        try
-        {
-            Status = StatusEnum.Busy;
-
-            await CopyFortniteGameFiles();
-            await CopyFortniteManiFestFiles();
-        }
-        catch (Exception e)
-        {
-            snackbar.Add(e.Message, Severity.Error);
-        }
-
-        Status = previousStatus;
-    }
-
-    private async Task CopyFortniteGameFiles()
-    {
-        ShowDetails = true;
-
-        string sharedFolderPath = GetSharedFolderPath();
-
-        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
-        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
-
-        var cmd = Cli.Wrap($"robocopy")
-            .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\Fortnite {sharedFolderPath} /MIR /FFT /COPY:DATS /DCOPY:DAT")
-            .WithValidation(CommandResultValidation.None);
-
-        Process = new DeviceProcess(cmd, logPath);
-        await Process.Run();
-    }
-
-    private async Task CopyFortniteManiFestFiles()
-    {
-        ShowDetails = true;
-
-        string sharedFolderPath = GetSharedFolderPath();
-
-        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
-        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
-
-        var cmd = Cli.Wrap($"robocopy")
-            .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\HVKSERVER\FortniteManifests \\{IPAddress.ToString()}\FortniteManifests /E /COPY:DATS")
-            .WithValidation(CommandResultValidation.None);
-
-        Process = new DeviceProcess(cmd, logPath);
-        await Process.Run();
     }
 
     private string GetSharedFolderPath()

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using CliWrap
 @using CliWrap.EventStream
+@using EsportManager.Features.Devices.UpdateFortnite
 @using MudBlazor
 @using EsportManager.Features.Devices.Models
 @using System.Diagnostics
@@ -13,8 +14,8 @@
     ServerData="GetDevices"
     @bind-SelectedItems="SelectedDevices" 
     Class="ma-5" 
-    MultiSelection 
-    Hover 
+    MultiSelection
+    Striped
     SelectOnRowClick="false" 
     Dense 
     LoadingContentBody="loadingContentBody"
@@ -28,7 +29,7 @@
                 <MudTooltip Text="Scan network for devices" Placement="Placement.Top"><MudIconButton OnClick="ScanForDevices" Icon="@Icons.Material.Filled.CloudSync" Size="Size.Medium" Class="pa-0" /></MudTooltip>
             </MudStack>
             <MudStack Row>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary">Update fortnite on selected devices</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Info">Update fortnite on selected devices</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Success">Turn on selected devices</MudButton>
             </MudStack>
         </MudStack>
@@ -47,7 +48,7 @@
         <MudTd DataLabel="Mac adress">@context.Status.ToString()</MudTd>
         <MudTd>
             <MudStack Row Justify="Justify.FlexEnd" Class="mr-3">
-                <MudTooltip Text="Update fortnite" Placement="Placement.Top"><MudIconButton OnClick="() => UpdateFortnite(context)" Icon="@Icons.Material.Filled.Update" Class="pa-0" Color="Color.Primary" /></MudTooltip>
+                <UpdateFortniteButton Device="context" />
                 <MudTooltip Text="Turn on" Placement="Placement.Top"><MudIconButton OnClick="async () => await TurnOnDevice(context)" Icon="@Icons.Material.Filled.Power" Class="pa-0" /></MudTooltip>
                 <MudTooltip Text="Check status" Placement="Placement.Top"><MudIconButton OnClick="() => CheckDeviceStatus(context)" Icon="@Icons.Material.Filled.WifiFind" Class="pa-0" /></MudTooltip>
                 <MudTooltip Text="Show details" Placement="Placement.Top"><MudIconButton OnClick="() => context.ShowDetails = !context.ShowDetails" Icon="@Icons.Material.Filled.KeyboardArrowDown" Class="pa-0" /></MudTooltip>
@@ -58,73 +59,54 @@
         @if (context.ShowDetails)
         {
             <MudTr>
-                <td colspan="6">
-                    <MudCard>
-                        <MudCardHeader Class="pb-0">
-                            <CardHeaderContent>
-                                <MudStack Row AlignItems="AlignItems.Center">
-                                    <MudText Typo="Typo.h6"><b>@context.Name</b></MudText>
-                                    @if (context.Process != null && context.Process.IsRunning)
-                                    {
-                                        <MudTooltip Text="Stop update" Placement="Placement.Top"><MudIconButton onclick="() => context.Process.Cancel()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
-                                    }
-                                </MudStack>
-                            </CardHeaderContent>
-                        </MudCardHeader>
-                        <MudCardContent>
-                            @if (context.Process != null)
-                            {
-                                <MudStack Spacing="0" Row>
-                                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Computer" />
-                                    <MudText Class="mx-2">Process id:</MudText>
-                                    <MudText>@context.Process?.Id</MudText>
-                                </MudStack>
-                                @switch (context.Process.Status)
+                <td colspan="12" class="pa-4">
+                    <MudStack>
+                        @if (context.ProcessQueue.Count > 0)
+                        {
+                            <MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+                                @if (context.)
+                                <MudText Typo="Typo.h6">Task queue</MudText>
+                                <MudButton OnClick="() => context.StartQueue()" Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">Start queue</MudButton>
+                            </MudStack>
+                            <MudStack Row Justify="Justify.FlexStart">
+                                @foreach (var process in context.ProcessQueue)
                                 {
-                                    case DeviceProcess.ProcessStatusEnum.Initialized:
-                                        <MudStack Spacing="0" Row>
-                                            <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Start" />
-                                            <MudText Class="mx-2">Status:</MudText>
-                                            <MudText>Initialized</MudText>
-                                        </MudStack>
-                                        break;
-                                    case DeviceProcess.ProcessStatusEnum.Running:
-                                        <MudStack Spacing="0" Row>
-                                            <MudProgressCircular Color="Color.Info" Value="context.Process.Progress" Indeterminate="context.Process.Progress == 0" Size="Size.Small" />
-                                            <MudText Class="mx-2">Status:</MudText>
-                                            <MudText>Running</MudText>
-                                        </MudStack>
-                                        break;
-                                    case DeviceProcess.ProcessStatusEnum.Finished:
-                                        <MudStack Spacing="0" Row>
-                                            <MudIcon Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.Done" />
-                                            <MudText Class="mx-2">Status:</MudText>
-                                            <MudText>Finished</MudText>
-                                        </MudStack>
-                                        break;
-                                    case DeviceProcess.ProcessStatusEnum.FinishedWithError:
-                                        <MudStack Spacing="0" Row>
-                                            <MudIcon Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Filled.Error" />
-                                            <MudText Class="mx-2">Status:</MudText>
-                                            <MudText>Finished with error</MudText>
-                                        </MudStack>
-                                        break;
-                                    case DeviceProcess.ProcessStatusEnum.CancelledByUser:
-                                        <MudStack Spacing="0" Row>
-                                            <MudIcon Color="Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.Cancel" />
-                                            <MudText Class="mx-2">Status:</MudText>
-                                            <MudText>Cancelled by user</MudText>
-                                        </MudStack>
-                                        break;
+                                    <MudCard>
+                                        <MudCardHeader Class="pb-0">
+                                            <CardHeaderContent>
+                                                <MudStack Row AlignItems="AlignItems.Center">
+                                                    <MudText>@process.Name</MudText>
+                                                    @if (process != null && process.IsRunning)
+                                                    {
+                                                        <MudTooltip Text="Stop update" Placement="Placement.Top"><MudIconButton onclick="() => process.Cancel()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
+                                                    }
+                                                </MudStack>
+                                            </CardHeaderContent>
+                                        </MudCardHeader>
+                                        <MudCardContent>
+                                            <MudStack Spacing="0" Row>
+                                                @if (process.IsRunning)
+                                                {
+                                                    <MudProgressCircular Color="Color.Info" Value="process.Progress" Indeterminate="process.Progress == 0" Size="Size.Small" />
+                                                }
+                                                else
+                                                {
+                                                    <MudIcon Color="Color.Default" Size="Size.Small" Icon="@GetProcessStatusIcon(process)" />
+                                                }
+                                                <MudText Class="mx-2">Status:</MudText>
+                                                <MudText>@process.Status</MudText>
+                                            </MudStack>
+                                            <MudStack Spacing="0" Row>
+                                                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.ShortText" />
+                                                <MudText Class="mx-2">Output:</MudText>
+                                                <MudText>@process?.Output</MudText>
+                                            </MudStack>
+                                        </MudCardContent>
+                                    </MudCard>
                                 }
-                                <MudStack Spacing="0" Row>
-                                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.ShortText" />
-                                    <MudText Class="mx-2">Process output:</MudText>
-                                    <MudText>@context.Process?.Output</MudText>
-                                </MudStack>
-                            }
-                        </MudCardContent>
-                    </MudCard>
+                            </MudStack>
+                        }
+                    </MudStack>
                 </td>
             </MudTr>
         }
@@ -177,9 +159,34 @@
 
     private System.Timers.Timer RefreshTimer { get; set; } = new(500);
 
+    protected override void OnInitialized()
+    {
+        RefreshTimer.Elapsed += (x, y) => InvokeAsync(StateHasChanged);
+        RefreshTimer.Start();
+    }
+
     public void Dispose()
     {
         RefreshTimer.Dispose();
+    }
+
+    private string GetProcessStatusIcon(DeviceProcess process)
+    {
+        switch (process.Status)
+        {
+            case DeviceProcess.ProcessStatusEnum.Initialized:
+                return Icons.Material.Filled.Start;
+            case DeviceProcess.ProcessStatusEnum.Running:
+                return Icons.Material.Filled.Done;
+            case DeviceProcess.ProcessStatusEnum.Finished:
+                return Icons.Material.Filled.Done;
+            case DeviceProcess.ProcessStatusEnum.FinishedWithError:
+                return Icons.Material.Filled.Error;
+            case DeviceProcess.ProcessStatusEnum.CancelledByUser:
+                return Icons.Material.Filled.Cancel;
+            default:
+                return string.Empty;
+        }
     }
 
     private async Task<TableData<Device>> GetDevices(TableState state, CancellationToken token)
@@ -247,14 +254,6 @@
         SearchValue = searchValue;
 
         await Table.ReloadServerData();
-    }
-
-    private async Task UpdateFortnite(Device device)
-    {
-        device.UpdateFortnite(_snackbar, StateHasChanged);
-
-        RefreshTimer.Elapsed += async (sender, args) => await InvokeAsync(StateHasChanged);
-        RefreshTimer.Start();
     }
 
     private async Task TurnOnDevice(Device device)

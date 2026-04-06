@@ -1,0 +1,78 @@
+﻿@using CliWrap
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+@inject ISnackbar _snackbar
+
+@if (Device != null)
+{
+    <MudTooltip Text="Update fortnite" Placement="Placement.Top">
+        <MudIconButton OnClick="UpdateFortnite" Icon="@Icons.Material.Filled.Update" Class="pa-0" />
+    </MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public Device? Device { get; set; }
+
+    public async Task UpdateFortnite()
+    {
+        try
+        {
+            if (Device == null)
+            {
+                _snackbar.Add("Device is null", Severity.Error);
+                return;
+            }
+
+            List<DeviceProcess> processes = [];
+
+            processes.Add(CopyFortniteGameFiles());
+            processes.Add(CopyFortniteManiFestFiles());
+
+            Device.EnqueueProcesses(processes);
+            Device.ShowDetails = true;
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private RobocopyProcess CopyFortniteGameFiles()
+    {
+        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
+        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Device.Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
+
+        var cmd = Cli.Wrap($"robocopy")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($@"\\HVKSERVER\Fortnite \\{Device.IPAddress.ToString()}\Fortnite /MIR /FFT /COPY:DATS /DCOPY:DAT")
+            .WithValidation(CommandResultValidation.None);
+
+        var process = new RobocopyProcess(
+            name: "Copy fortnite game files",
+            command: cmd,
+            logPath: logPath
+        );
+
+        return process;
+    }
+
+    private RobocopyProcess CopyFortniteManiFestFiles()
+    {
+        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
+        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Device.Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
+
+        var cmd = Cli.Wrap($"robocopy")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($@"\\HVKSERVER\FortniteManifests \\{Device.IPAddress.ToString()}\FortniteManifests /E /COPY:DATS")
+            .WithValidation(CommandResultValidation.None);
+
+        var process = new RobocopyProcess(
+            name: "Copy fortnite manifests",
+            command: cmd,
+            logPath: logPath
+        );
+
+        return process;
+    }
+}

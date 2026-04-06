@@ -8,8 +8,9 @@ namespace EsportManager.Features.Devices.Models;
 
 public class DeviceProcess
 {
-    public DeviceProcess(CliWrap.Command command)
+    public DeviceProcess(string name, CliWrap.Command command)
     {
+        _name = name;
         _command = command;
         LogPath = string.Empty;
         _status = ProcessStatusEnum.Initialized;
@@ -17,8 +18,9 @@ public class DeviceProcess
         _cancellationTokenSource = new CancellationTokenSource();
     }
      
-    public DeviceProcess(CliWrap.Command command, string logPath)
+    public DeviceProcess(string name, CliWrap.Command command, string logPath)
     {
+        _name = name;
         _command = command;
         LogPath = logPath;
         _status = ProcessStatusEnum.Initialized;
@@ -30,6 +32,12 @@ public class DeviceProcess
     public int Id
     {
         get => _id;
+    }
+
+    private string _name { get; set; }
+    public string Name
+    {
+        get => _name;
     }
 
     private CliWrap.Command _command { get; set; }
@@ -64,18 +72,9 @@ public class DeviceProcess
         get => _cancellationTokenSource;
     }
 
-    private string DoneMessage { get; set; }
-
     private string LogPath { get; set; }
 
-    public delegate Task ProcessChangedHandler(CommandEvent commandEvent, DeviceProcess process);
-    public event ProcessChangedHandler? ProcessChanged;
-    private void OnProcessChanged(CommandEvent commandEvent)
-    {
-        ProcessChanged?.Invoke(commandEvent, this);
-    }
-
-    public async Task<CommandEvent?> Run()
+    public async Task<ExitedCommandEvent> Run()
     {
         try
         {
@@ -103,17 +102,17 @@ public class DeviceProcess
             _status = ProcessStatusEnum.CancelledByUser;
             Debug.WriteLine($"Process cancelled by user: {oce.Message}");
 
-            OnProcessChanged(new ExitedCommandEvent(0));
+            return new ExitedCommandEvent(-1);
         }
         catch (Exception e)
         {
             _status = ProcessStatusEnum.FinishedWithError;
             Debug.WriteLine($"An error happened: {e.Message}");
 
-            OnProcessChanged(new ExitedCommandEvent(0));
+            return new ExitedCommandEvent(-1);
         }
 
-        return null;
+        return new ExitedCommandEvent(1);
     }
 
     public void Cancel()
@@ -121,42 +120,34 @@ public class DeviceProcess
         CancellationTokenSource.Cancel();
     }
 
-    private void HandleStarted(StartedCommandEvent started)
+    public virtual void HandleStarted(StartedCommandEvent started)
     {
         _id = started.ProcessId;
         _status = ProcessStatusEnum.Running;
 
         SetOutput($"Process started; ID: {started.ProcessId}");
         Debug.WriteLine($"Process started; ID: {started.ProcessId}");
-
-        OnProcessChanged(started);
     }
     
-    private void HandleStandardOutput(StandardOutputCommandEvent stdOut)
+    public virtual void HandleStandardOutput(StandardOutputCommandEvent stdOut)
     {
         SetOutput($"{stdOut.Text}");
         Debug.WriteLine($"Out> {stdOut.Text}");
-
-        OnProcessChanged(stdOut);
     }
 
-    private void HandleStandardError(StandardErrorCommandEvent stdErr)
+    public virtual void HandleStandardError(StandardErrorCommandEvent stdErr)
     {
         SetOutput($"{stdErr.Text}");
         Debug.WriteLine($"Err> {stdErr.Text}");
-
-        OnProcessChanged(stdErr);
     }
 
-    private void HandleExited(ExitedCommandEvent exited)
+    public virtual void HandleExited(ExitedCommandEvent exited)
     {
         _status = ProcessStatusEnum.Finished;
 
         string output = $"Process exited with code {exited.ExitCode}";
         SetOutput(output);
         Debug.WriteLine(output);
-
-        OnProcessChanged(exited);
     }
 
     private void SetOutput(string output)
