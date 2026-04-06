@@ -64,9 +64,12 @@
                         @if (context.ProcessQueue.Count > 0)
                         {
                             <MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
-                                @if (context.)
                                 <MudText Typo="Typo.h6">Task queue</MudText>
-                                <MudButton OnClick="() => context.StartQueue()" Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">Start queue</MudButton>
+                                @if (context.ProcessQueue.All(q => q.Status == DeviceProcess.ProcessStatusEnum.Initialized))
+                                {
+                                    <MudButton OnClick="() => context.StartQueue()" Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">Start queue</MudButton>
+                                }
+                                <MudTooltip Text="Clear queue" Placement="Placement.Top"><MudIconButton onclick="() => context.ClearQueue()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
                             </MudStack>
                             <MudStack Row Justify="Justify.FlexStart">
                                 @foreach (var process in context.ProcessQueue)
@@ -78,7 +81,7 @@
                                                     <MudText>@process.Name</MudText>
                                                     @if (process != null && process.IsRunning)
                                                     {
-                                                        <MudTooltip Text="Stop update" Placement="Placement.Top"><MudIconButton onclick="() => process.Cancel()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
+                                                        <MudTooltip Text="Stop update" Placement="Placement.Top"><MudIconButton onclick="() => process.Cancel(true)" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
                                                     }
                                                 </MudStack>
                                             </CardHeaderContent>

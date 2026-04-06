@@ -1,7 +1,5 @@
 ﻿using CliWrap.EventStream;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace EsportManager.Features.Devices.Models;
@@ -30,16 +28,24 @@ public class RobocopyProcess : DeviceProcess
     {
         base.HandleStandardOutput(stdOut);
 
-        Regex regex = new("ERROR \\d{1,2}");
-
-        if (regex.IsMatch(stdOut.Text))
+        if (ShouldBreak(stdOut))
         {
-            Cancel();
+            Process process = Process.GetProcessById(Id);
+            process.Kill(true);
         }
     }
 
     public override void HandleStarted(StartedCommandEvent started)
     {
         base.HandleStarted(started);
+    }
+
+    private bool ShouldBreak(StandardOutputCommandEvent stdOut)
+    {
+        return stdOut.Text switch
+        {
+            string a when a.Contains("ERROR 53") => true,
+            _ => false,
+        };
     }
 }

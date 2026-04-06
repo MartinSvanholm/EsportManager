@@ -73,6 +73,7 @@ public class DeviceProcess
     }
 
     private string LogPath { get; set; }
+    private bool CancelRequestedByUser { get; set; }
 
     public async Task<ExitedCommandEvent> Run()
     {
@@ -99,9 +100,17 @@ public class DeviceProcess
         }
         catch (OperationCanceledException oce)
         {
-            _status = ProcessStatusEnum.CancelledByUser;
-            Debug.WriteLine($"Process cancelled by user: {oce.Message}");
+            if (CancelRequestedByUser)
+            {
+                _status = ProcessStatusEnum.CancelledByUser;
+                Debug.WriteLine($"Process cancelled by user: {oce.Message}");
 
+                return new ExitedCommandEvent(-1);
+            }
+
+            _status = ProcessStatusEnum.FinishedWithError;
+            Debug.WriteLine($"Process cancelled due to an error: {oce.Message}");
+    
             return new ExitedCommandEvent(-1);
         }
         catch (Exception e)
@@ -115,8 +124,9 @@ public class DeviceProcess
         return new ExitedCommandEvent(1);
     }
 
-    public void Cancel()
+    public void Cancel(bool requestedByUser = false)
     {
+        CancelRequestedByUser = requestedByUser;
         CancellationTokenSource.Cancel();
     }
 

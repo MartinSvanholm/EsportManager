@@ -1,5 +1,4 @@
 ﻿using CliWrap;
-using CliWrap.EventStream;
 using MudBlazor;
 using System.ComponentModel;
 using System.Net;
@@ -44,6 +43,11 @@ public class Device
     public void EnqueueProcesses(List<DeviceProcess> processes)
     {
         ProcessQueue.AddRange(processes);
+    }
+
+    public void ClearQueue()
+    {
+        ProcessQueue.Clear();
     }
 
     public async Task StartQueue()
@@ -132,11 +136,6 @@ public class Device
         };
 
         pingSender.SendAsync(IPAddress, 5000,  null);
-    }
-
-    private string GetSharedFolderPath()
-    {
-        return $@"\\{IPAddress.ToString()}\Fortnite";
     }
 
     public enum StatusEnum
