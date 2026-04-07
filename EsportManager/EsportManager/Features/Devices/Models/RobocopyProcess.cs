@@ -1,6 +1,5 @@
 ﻿using CliWrap.EventStream;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace EsportManager.Features.Devices.Models;
 
@@ -16,7 +15,9 @@ public class RobocopyProcess : DeviceProcess
 
     public override void HandleExited(ExitedCommandEvent exited)
     {
-        base.HandleExited(exited);
+        _status = RobocopyStatus.FromExitCode(exited.ExitCode);
+
+        Debug.WriteLine($"Robocopy exited with code {exited.ExitCode} ({_status})");
     }
 
     public override void HandleStandardError(StandardErrorCommandEvent stdErr)
@@ -30,8 +31,7 @@ public class RobocopyProcess : DeviceProcess
 
         if (ShouldBreak(stdOut))
         {
-            Process process = Process.GetProcessById(Id);
-            process.Kill(true);
+            Cancel();
         }
     }
 

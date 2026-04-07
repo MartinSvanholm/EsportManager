@@ -56,9 +56,9 @@ public class Device
         {
             if (!process.IsRunning)
             {
-                var exited = await process.Run();
+                await process.Run();
 
-                if (exited.ExitCode == -1)
+                if (process.HasError)
                 {
                     break;
                 }

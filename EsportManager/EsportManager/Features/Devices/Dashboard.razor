@@ -65,7 +65,7 @@
                         {
                             <MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
                                 <MudText Typo="Typo.h6">Task queue</MudText>
-                                @if (context.ProcessQueue.All(q => q.Status == DeviceProcess.ProcessStatusEnum.Initialized))
+                                @if (context.ProcessQueue.All(q => q.Status == ProcessStatus.Initialized))
                                 {
                                     <MudButton OnClick="() => context.StartQueue()" Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">Start queue</MudButton>
                                 }
@@ -94,7 +94,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <MudIcon Color="Color.Default" Size="Size.Small" Icon="@GetProcessStatusIcon(process)" />
+                                                    <MudIcon Color="@GetProcessStatusColor(process)" Size="Size.Small" Icon="@GetProcessStatusIcon(process)" />
                                                 }
                                                 <MudText Class="mx-2">Status:</MudText>
                                                 <MudText>@process.Status</MudText>
@@ -175,21 +175,33 @@
 
     private string GetProcessStatusIcon(DeviceProcess process)
     {
-        switch (process.Status)
-        {
-            case DeviceProcess.ProcessStatusEnum.Initialized:
-                return Icons.Material.Filled.Start;
-            case DeviceProcess.ProcessStatusEnum.Running:
-                return Icons.Material.Filled.Done;
-            case DeviceProcess.ProcessStatusEnum.Finished:
-                return Icons.Material.Filled.Done;
-            case DeviceProcess.ProcessStatusEnum.FinishedWithError:
-                return Icons.Material.Filled.Error;
-            case DeviceProcess.ProcessStatusEnum.CancelledByUser:
-                return Icons.Material.Filled.Cancel;
-            default:
-                return string.Empty;
-        }
+        if (process.Status == ProcessStatus.Initialized)
+            return Icons.Material.Filled.Start;
+
+        if (process.Status == ProcessStatus.CancelledByUser)
+            return Icons.Material.Filled.Cancel;
+
+        if (process.Status.IsError)
+            return Icons.Material.Filled.Error;
+
+        return Icons.Material.Filled.Done;
+    }
+
+    private Color GetProcessStatusColor(DeviceProcess process)
+    {
+        if (process.Status.Severity == Severity.Normal)
+            return Color.Default;
+
+        if (process.Status.Severity == Severity.Info)
+            return Color.Info;
+
+        if (process.Status.Severity == Severity.Warning)
+            return Color.Warning;
+
+        if (process.Status.Severity == Severity.Error)
+            return Color.Error;
+
+        return Color.Default;
     }
 
     private async Task<TableData<Device>> GetDevices(TableState state, CancellationToken token)

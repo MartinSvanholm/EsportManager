@@ -1,5 +1,4 @@
 ﻿using CliWrap.EventStream;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -13,17 +12,17 @@ public class DeviceProcess
         _name = name;
         _command = command;
         LogPath = string.Empty;
-        _status = ProcessStatusEnum.Initialized;
+        _status = ProcessStatus.Initialized;
         _output = string.Empty;
         _cancellationTokenSource = new CancellationTokenSource();
     }
-     
+
     public DeviceProcess(string name, CliWrap.Command command, string logPath)
     {
         _name = name;
         _command = command;
         LogPath = logPath;
-        _status = ProcessStatusEnum.Initialized;
+        _status = ProcessStatus.Initialized;
         _output = string.Empty;
         _cancellationTokenSource = new CancellationTokenSource();
     }
@@ -46,13 +45,15 @@ public class DeviceProcess
         get => _command;
     }
 
-    private ProcessStatusEnum _status { get; set; }
-    public ProcessStatusEnum Status
+    protected ProcessStatus _status { get; set; }
+    public ProcessStatus Status
     {
         get => _status;
     }
 
-    public bool IsRunning => Status == ProcessStatusEnum.Running;
+    public bool IsRunning => Status == ProcessStatus.Running;
+
+    public bool HasError => Status.IsError;
 
     private string _output { get; set; }
     public string Output
@@ -75,7 +76,7 @@ public class DeviceProcess
     private string LogPath { get; set; }
     private bool CancelRequestedByUser { get; set; }
 
-    public async Task<ExitedCommandEvent> Run()
+    public async Task Run()
     {
         try
         {
@@ -94,7 +95,7 @@ public class DeviceProcess
                         break;
                     case ExitedCommandEvent exited:
                         HandleExited(exited);
-                        return exited;
+                        break;
                 }
             }
         }
@@ -102,26 +103,18 @@ public class DeviceProcess
         {
             if (CancelRequestedByUser)
             {
-                _status = ProcessStatusEnum.CancelledByUser;
+                _status = ProcessStatus.CancelledByUser;
                 Debug.WriteLine($"Process cancelled by user: {oce.Message}");
-
-                return new ExitedCommandEvent(-1);
             }
 
-            _status = ProcessStatusEnum.FinishedWithError;
+            _status = ProcessStatus.FinishedWithError;
             Debug.WriteLine($"Process cancelled due to an error: {oce.Message}");
-    
-            return new ExitedCommandEvent(-1);
         }
         catch (Exception e)
         {
-            _status = ProcessStatusEnum.FinishedWithError;
+            _status = ProcessStatus.FinishedWithError;
             Debug.WriteLine($"An error happened: {e.Message}");
-
-            return new ExitedCommandEvent(-1);
         }
-
-        return new ExitedCommandEvent(1);
     }
 
     public void Cancel(bool requestedByUser = false)
@@ -133,7 +126,7 @@ public class DeviceProcess
     public virtual void HandleStarted(StartedCommandEvent started)
     {
         _id = started.ProcessId;
-        _status = ProcessStatusEnum.Running;
+        _status = ProcessStatus.Running;
 
         SetOutput($"Process started; ID: {started.ProcessId}");
         Debug.WriteLine($"Process started; ID: {started.ProcessId}");
@@ -153,7 +146,7 @@ public class DeviceProcess
 
     public virtual void HandleExited(ExitedCommandEvent exited)
     {
-        _status = ProcessStatusEnum.Finished;
+        _status = ProcessStatus.Finished;
 
         string output = $"Process exited with code {exited.ExitCode}";
         SetOutput(output);
@@ -200,14 +193,4 @@ public class DeviceProcess
         }
     }
 
-    public enum ProcessStatusEnum
-    {
-        Initialized,
-        Running,
-        Finished,
-        [Description("Finished with error")]
-        FinishedWithError,
-        [Description("Cancelled by user")]
-        CancelledByUser
     }
-}
