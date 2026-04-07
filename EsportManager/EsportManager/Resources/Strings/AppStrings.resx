@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute name="space" type="xsd:string" use="optional" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <!-- Dashboard -->
+  <data name="Devices" xml:space="preserve">
+    <value>Enheder</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Søg</value>
+  </data>
+  <data name="ScanNetworkForDevices" xml:space="preserve">
+    <value>Scan netværk for enheder</value>
+  </data>
+  <data name="UpdateFortniteOnSelected" xml:space="preserve">
+    <value>Opdater Fortnite på valgte enheder</value>
+  </data>
+  <data name="TurnOnSelectedDevices" xml:space="preserve">
+    <value>Tænd valgte enheder</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Navn</value>
+  </data>
+  <data name="IpAddress" xml:space="preserve">
+    <value>IP-adresse</value>
+  </data>
+  <data name="MacAddress" xml:space="preserve">
+    <value>MAC-adresse</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="TurnOn" xml:space="preserve">
+    <value>Tænd</value>
+  </data>
+  <data name="CheckStatus" xml:space="preserve">
+    <value>Tjek status</value>
+  </data>
+  <data name="ShowDetails" xml:space="preserve">
+    <value>Vis detaljer</value>
+  </data>
+  <data name="TaskQueue" xml:space="preserve">
+    <value>Opgavekø</value>
+  </data>
+  <data name="StartQueue" xml:space="preserve">
+    <value>Start kø</value>
+  </data>
+  <data name="ClearQueue" xml:space="preserve">
+    <value>Ryd kø</value>
+  </data>
+  <data name="StopUpdate" xml:space="preserve">
+    <value>Stop opdatering</value>
+  </data>
+  <data name="StatusLabel" xml:space="preserve">
+    <value>Status:</value>
+  </data>
+  <data name="OutputLabel" xml:space="preserve">
+    <value>Output:</value>
+  </data>
+  <data name="Waiting30Seconds" xml:space="preserve">
+    <value>Venter 30 sekunder på svar fra enhed</value>
+  </data>
+  <data name="Waiting5Seconds" xml:space="preserve">
+    <value>Venter 5 sekunder på svar fra enhed</value>
+  </data>
+  <data name="DeviceIsOnline" xml:space="preserve">
+    <value>{0} er online</value>
+  </data>
+  <data name="DeviceIsOffline" xml:space="preserve">
+    <value>{0} er offline</value>
+  </data>
+  <!-- UpdateFortniteButton -->
+  <data name="UpdateFortnite" xml:space="preserve">
+    <value>Opdater Fortnite</value>
+  </data>
+  <data name="DeviceIsNull" xml:space="preserve">
+    <value>Enhed er null</value>
+  </data>
+  <data name="CopyFortniteGameFiles" xml:space="preserve">
+    <value>Kopiér Fortnite-spilfiler</value>
+  </data>
+  <data name="CopyFortniteManifests" xml:space="preserve">
+    <value>Kopiér Fortnite-manifester</value>
+  </data>
+  <!-- NavMenu -->
+  <data name="Dashboard" xml:space="preserve">
+    <value>Instrumentbræt</value>
+  </data>
+  <!-- MainLayout -->
+  <data name="Manager" xml:space="preserve">
+    <value>Manager</value>
+  </data>
+  <!-- NotFound -->
+  <data name="NotFound" xml:space="preserve">
+    <value>Ikke fundet</value>
+  </data>
+  <data name="NotFoundMessage" xml:space="preserve">
+    <value>Beklager, indholdet du leder efter, eksisterer ikke.</value>
+  </data>
+  <!-- ProcessStatus -->
+  <data name="StatusInitialized" xml:space="preserve">
+    <value>Initialiseret</value>
+  </data>
+  <data name="StatusRunning" xml:space="preserve">
+    <value>Kører</value>
+  </data>
+  <data name="StatusFinished" xml:space="preserve">
+    <value>Færdig</value>
+  </data>
+  <data name="StatusFinishedWithError" xml:space="preserve">
+    <value>Færdig med fejl</value>
+  </data>
+  <data name="StatusCancelledByUser" xml:space="preserve">
+    <value>Annulleret af bruger</value>
+  </data>
+  <data name="StatusCancelledWithError" xml:space="preserve">
+    <value>Annulleret med fejl</value>
+  </data>
+  <!-- RobocopyStatus -->
+  <data name="RobocopyNoFilesCopied" xml:space="preserve">
+    <value>Ingen filer blev kopieret. Ingen fejl opstod. Ingen filer var forskellige.</value>
+  </data>
+  <data name="RobocopyFilesCopied" xml:space="preserve">
+    <value>En eller flere filer blev kopieret.</value>
+  </data>
+  <data name="RobocopyExtraFilesDetected" xml:space="preserve">
+    <value>Ekstra filer eller mapper blev fundet.</value>
+  </data>
+  <data name="RobocopyFilesCopiedAndExtra" xml:space="preserve">
+    <value>En eller flere filer blev kopieret. Ekstra filer eller mapper blev fundet.</value>
+  </data>
+  <data name="RobocopyMismatchDetected" xml:space="preserve">
+    <value>Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyFilesCopiedAndMismatch" xml:space="preserve">
+    <value>En eller flere filer blev kopieret. Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyExtraAndMismatch" xml:space="preserve">
+    <value>Ekstra filer eller mapper blev fundet. Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyFilesCopiedExtraAndMismatch" xml:space="preserve">
+    <value>En eller flere filer blev kopieret. Ekstra filer eller mapper blev fundet. Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyCopyErrors" xml:space="preserve">
+    <value>Nogle filer eller mapper kunne ikke kopieres (kopieringsfejl opstod og forsøgsgrænsen blev overskredet).</value>
+  </data>
+  <data name="RobocopyFatalError" xml:space="preserve">
+    <value>Alvorlig fejl. Robocopy kopierede ingen filer.</value>
+  </data>
+  <!-- DeviceProcess output -->
+  <data name="ProcessStarted" xml:space="preserve">
+    <value>Proces startet; ID: {0}</value>
+  </data>
+  <data name="ProcessExitedWithCode" xml:space="preserve">
+    <value>Proces afsluttet med kode {0}</value>
+  </data>
+</root>

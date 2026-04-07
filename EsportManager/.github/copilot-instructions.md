@@ -9,7 +9,7 @@
 
 ## Workflow
 
-- **Always show a plan before executing.** Before making any code changes, present a clear step-by-step plan and wait for approval.
+- **Always show a plan before executing.** Before making any code changes, present a clear step-by-step plan and do not edit any code before permission has been granted.
 
 ## Framework & Target
 

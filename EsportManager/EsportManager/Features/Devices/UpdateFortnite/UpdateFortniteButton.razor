@@ -1,11 +1,12 @@
 ﻿@using CliWrap
 @using MudBlazor
 @using EsportManager.Features.Devices.Models
+@using EsportManager.Resources.Strings
 @inject ISnackbar _snackbar
 
 @if (Device != null)
 {
-    <MudTooltip Text="Update fortnite" Placement="Placement.Top">
+    <MudTooltip Text="@AppStrings.UpdateFortnite" Placement="Placement.Top">
         <MudIconButton OnClick="UpdateFortnite" Icon="@Icons.Material.Filled.Update" Class="pa-0" />
     </MudTooltip>
 }
@@ -20,7 +21,7 @@
         {
             if (Device == null)
             {
-                _snackbar.Add("Device is null", Severity.Error);
+                _snackbar.Add(AppStrings.DeviceIsNull, Severity.Error);
                 return;
             }
 
@@ -49,7 +50,7 @@
             .WithValidation(CommandResultValidation.None);
 
         var process = new RobocopyProcess(
-            name: "Copy fortnite game files",
+            name: AppStrings.CopyFortniteGameFiles,
             command: cmd,
             logPath: logPath
         );
@@ -68,7 +69,7 @@
             .WithValidation(CommandResultValidation.None);
 
         var process = new RobocopyProcess(
-            name: "Copy fortnite manifests",
+            name: AppStrings.CopyFortniteManifests,
             command: cmd,
             logPath: logPath
         );

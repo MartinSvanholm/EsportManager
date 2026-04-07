@@ -1,15 +1,16 @@
+using EsportManager.Resources.Strings;
 using MudBlazor;
 
 namespace EsportManager.Features.Devices.Models;
 
 public class ProcessStatus
 {
-    public static readonly ProcessStatus Initialized = new("Initialized");
-    public static readonly ProcessStatus Running = new("Running");
-    public static readonly ProcessStatus Finished = new("Finished", severity: Severity.Success);
-    public static readonly ProcessStatus FinishedWithError = new("Finished with error", severity: Severity.Error);
-    public static readonly ProcessStatus CancelledByUser = new("Cancelled by user", severity: Severity.Error);
-    public static readonly ProcessStatus CancelledWithError = new("Cancelled with error", severity: Severity.Error);
+    public static readonly ProcessStatus Initialized = new(AppStrings.StatusInitialized);
+    public static readonly ProcessStatus Running = new(AppStrings.StatusRunning);
+    public static readonly ProcessStatus Finished = new(AppStrings.StatusFinished, severity: Severity.Success);
+    public static readonly ProcessStatus FinishedWithError = new(AppStrings.StatusFinishedWithError, severity: Severity.Error);
+    public static readonly ProcessStatus CancelledByUser = new(AppStrings.StatusCancelledByUser, severity: Severity.Error);
+    public static readonly ProcessStatus CancelledWithError = new(AppStrings.StatusCancelledWithError, severity: Severity.Error);
 
     public string Name { get; }
     public bool IsError => Severity == Severity.Error;

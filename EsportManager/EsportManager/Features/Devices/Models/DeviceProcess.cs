@@ -1,4 +1,5 @@
 ﻿using CliWrap.EventStream;
+using EsportManager.Resources.Strings;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -128,7 +129,7 @@ public class DeviceProcess
         _id = started.ProcessId;
         _status = ProcessStatus.Running;
 
-        SetOutput($"Process started; ID: {started.ProcessId}");
+        SetOutput(string.Format(AppStrings.ProcessStarted, started.ProcessId));
         Debug.WriteLine($"Process started; ID: {started.ProcessId}");
     }
     
@@ -148,7 +149,7 @@ public class DeviceProcess
     {
         _status = ProcessStatus.Finished;
 
-        string output = $"Process exited with code {exited.ExitCode}";
+        string output = string.Format(AppStrings.ProcessExitedWithCode, exited.ExitCode);
         SetOutput(output);
         Debug.WriteLine(output);
     }
