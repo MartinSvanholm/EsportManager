@@ -15,6 +15,7 @@ namespace EsportManager
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+            builder.Services.AddSingleton<LaunchSettings>();
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices()
                 .AddMudBlazorSnackbar((config) =>
