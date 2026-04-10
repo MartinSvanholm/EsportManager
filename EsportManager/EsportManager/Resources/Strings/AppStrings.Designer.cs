@@ -232,6 +232,24 @@ namespace EsportManager.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Forkert brugernavn eller adgangskode.
+        /// </summary>
+        internal static string RobocopyErrorIncorrectCredentials {
+            get {
+                return ResourceManager.GetString("RobocopyErrorIncorrectCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stien blev ikke fundet, kan skyldes at enheden ikke er online endnu.
+        /// </summary>
+        internal static string RobocopyErrorPathNotFound {
+            get {
+                return ResourceManager.GetString("RobocopyErrorPathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ekstra filer eller mapper blev fundet. Filer eller mapper med uoverensstemmelser blev fundet..
         /// </summary>
         internal static string RobocopyExtraAndMismatch {

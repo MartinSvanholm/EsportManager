@@ -3,6 +3,11 @@
     "Windows Machine": {
       "commandName": "Project",
       "nativeDebugging": false
+    },
+    "DesktopDebug": {
+      "commandName": "Project",
+      "nativeDebugging": false,
+      "commandLineArgs": "--server Martin-Desktop"
     }
   }
 }

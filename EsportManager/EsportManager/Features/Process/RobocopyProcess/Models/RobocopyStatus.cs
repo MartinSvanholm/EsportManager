@@ -1,7 +1,8 @@
+using EsportManager.Features.Process.Models;
 using EsportManager.Resources.Strings;
 using MudBlazor;
 
-namespace EsportManager.Features.Devices.Models;
+namespace EsportManager.Features.Process.RobocopyProcess.Models;
 
 public class RobocopyStatus : ProcessStatus
 {

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace EsportManager.Features.Devices.Models;
+namespace EsportManager.Features.Process.Models;
 
 public class DeviceProcess
 {
@@ -46,10 +46,11 @@ public class DeviceProcess
         get => _command;
     }
 
+    protected ProcessStatus? _customStatus { get; set; }
     protected ProcessStatus _status { get; set; }
     public ProcessStatus Status
     {
-        get => _status;
+        get => _customStatus ?? _status;
     }
 
     public bool IsRunning => Status == ProcessStatus.Running;
@@ -118,8 +119,13 @@ public class DeviceProcess
         }
     }
 
-    public void Cancel(bool requestedByUser = false)
+    public void Cancel(bool requestedByUser = false, ProcessStatus? processStatus = null)
     {
+        if (processStatus != null)
+        {
+            _customStatus = processStatus;
+        }
+
         CancelRequestedByUser = requestedByUser;
         CancellationTokenSource.Cancel();
     }
@@ -193,5 +199,4 @@ public class DeviceProcess
                 return false;
         }
     }
-
-    }
+}

@@ -1,4 +1,6 @@
 ﻿@using CliWrap
+@using EsportManager.Features.Process.Models
+@using EsportManager.Features.Process.RobocopyProcess.Models
 @using MudBlazor
 @using EsportManager.Features.Devices.Models
 @using EsportManager.Resources.Strings
@@ -47,7 +49,7 @@
 
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\{_launchSettings.Server}\Fortnite \\{Device.IPAddress.ToString()}\CDrive\Program Files\Epic Games\Fortnite /MIR /FFT /COPY:DATS /DCOPY:DAT")
+            .WithArguments($@"\\{_launchSettings.Server}\Fortnite \\{Device.IPAddress.ToString()}\CDrive\ProgramFiles\EpicGames\Fortnite /MIR /FFT /COPY:DATS /DCOPY:DAT")
             .WithValidation(CommandResultValidation.None);
 
         var process = new RobocopyProcess(

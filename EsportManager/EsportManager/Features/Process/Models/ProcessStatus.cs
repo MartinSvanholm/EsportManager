@@ -1,7 +1,7 @@
 using EsportManager.Resources.Strings;
 using MudBlazor;
 
-namespace EsportManager.Features.Devices.Models;
+namespace EsportManager.Features.Process.Models;
 
 public class ProcessStatus
 {
@@ -13,15 +13,32 @@ public class ProcessStatus
     public static readonly ProcessStatus CancelledWithError = new(AppStrings.StatusCancelledWithError, severity: Severity.Error);
 
     public string Name { get; }
+    public string Description { get; }
     public bool IsError => Severity == Severity.Error;
     public bool IsWarning => Severity == Severity.Warning;
     public Severity Severity { get;}
 
-    protected ProcessStatus(string name, Severity severity = Severity.Normal)
+    public ProcessStatus(string name, Severity severity = Severity.Normal)
     {
         Name = name;
+        Description = string.Empty;
         Severity = severity;
     }
 
-    public override string ToString() => Name;
+    public ProcessStatus(string name, string description, Severity severity = Severity.Normal)
+    {
+        Name = name;
+        Description = description;
+        Severity = severity;
+    }
+
+    public override string ToString()
+    {
+        if (string.IsNullOrWhiteSpace(Description))
+        {
+            return Name;
+        }
+
+        return $"{Name} ({Description})";
+    }
 }

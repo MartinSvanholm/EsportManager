@@ -89,4 +89,8 @@
       </MauiAsset>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Shared\Robocopy\" />
+    </ItemGroup>
+
 </Project>
