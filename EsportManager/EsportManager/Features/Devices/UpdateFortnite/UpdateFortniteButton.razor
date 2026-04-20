@@ -32,8 +32,10 @@
                 return;
             }
 
+            Logger = _loggerFactory.CreateUpdateFortniteLogger(Device.Name);
+
             List<DeviceProcess> processes = [];
-            
+
             processes.Add(CopyFortniteGameFiles());
             processes.Add(CopyFortniteManiFestFiles());
 
@@ -58,8 +60,6 @@
             command: cmd,
             logger: Logger
         );
-
-        Logger.Information("Created CopyFortniteGameFiles process: {@Process}", process);
 
         return process;
     }

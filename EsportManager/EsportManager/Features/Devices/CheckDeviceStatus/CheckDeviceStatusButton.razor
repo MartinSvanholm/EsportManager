@@ -1,0 +1,38 @@
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+@inject ISnackbar _snackbar
+
+@if (Device != null)
+{
+    <MudTooltip Text="@AppStrings.CheckStatus" Placement="Placement.Top"><MudIconButton OnClick="CheckDeviceStatus" Icon="@Icons.Material.Filled.WifiFind" Class="pa-0" /></MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public Device Device { get; set; }
+
+    private void CheckDeviceStatus()
+    {
+        var snackbar = _snackbar.Add(AppStrings.Waiting5Seconds, Severity.Info, key: "ping_snackbar");
+
+        Device.CheckStatus(() => PingCompletedHandler());
+
+        StateHasChanged();
+    }
+
+    private void PingCompletedHandler()
+    {
+
+        if (Device.Status == Device.StatusEnum.Online)
+        {
+            _snackbar.Add(string.Format(AppStrings.DeviceIsOnline, Device.Name), Severity.Success);
+        }
+        else if (Device.Status == Device.StatusEnum.Offline)
+        {
+            _snackbar.Add(string.Format(AppStrings.DeviceIsOffline, Device.Name), Severity.Error);
+        }
+
+        StateHasChanged();
+    }
+}

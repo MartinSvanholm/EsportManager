@@ -1,0 +1,29 @@
+﻿@using EsportManager.Features.Devices;
+@using EsportManager.Features.Devices.CheckDeviceStatus
+@using EsportManager.Features.Devices.ShowDetails
+@using EsportManager.Features.Devices.TurnOn
+@using EsportManager.Features.Devices.UpdateFortnite
+@using EsportManager.Features.Devices.Models
+@using EsportManager.Resources.Strings
+@using MudBlazor
+
+@if (Device != null)
+{
+    <MudTd DataLabel="@AppStrings.Name">@Device.Name</MudTd>
+    <MudTd DataLabel="@AppStrings.IpAddress">@Device.IPAddress</MudTd>
+    <MudTd DataLabel="@AppStrings.MacAddress">@Device.MACAdress</MudTd>
+    <MudTd DataLabel="@AppStrings.Status">@Device.Status.ToString()</MudTd>
+    <MudTd>
+        <MudStack Row Justify="Justify.FlexEnd" Class="mr-3">
+            <UpdateFortniteButton Device="Device" />
+            <TurnOnDeviceButton Device="Device"/>
+            <CheckDeviceStatusButton Device="Device" />
+            <ShowDetailsButton Device="Device" />
+        </MudStack>
+    </MudTd>
+}
+
+@code {
+    [Parameter]
+    public Device Device { get; set; }
+}

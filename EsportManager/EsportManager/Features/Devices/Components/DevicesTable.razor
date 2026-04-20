@@ -1,0 +1,183 @@
+﻿@using CliWrap
+@using CliWrap.EventStream
+@using EsportManager.Features.Devices.UpdateFortnite
+@using EsportManager.Features.Process.Models
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+@using System.Diagnostics
+@using System.Net
+@using EsportManager
+@using EsportManager.Resources.Strings
+@inject ISnackbar _snackbar
+@implements IDisposable
+
+<MudTable T="Device" 
+    ServerData="GetDevices"
+    @bind-SelectedItems="SelectedDevices" 
+    Class="ma-5" 
+    MultiSelection
+    Striped
+    SelectOnRowClick="false" 
+    Dense 
+    LoadingContentBody="loadingContentBody"
+    @ref="Table" Loading="IsScanning">
+    <ToolBarContent>
+        <MudStack Row Justify="Justify.SpaceBetween" Style="width: 100%">
+            <MudStack Row>
+                <MudText Typo="Typo.h6">@AppStrings.Devices</MudText>
+                <MudTextField T="string" Value="SearchValue" ValueChanged="OnSearch" Placeholder="@AppStrings.Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable Disabled="IsScanning" />
+                <MudTooltip Text="@AppStrings.ScanNetworkForDevices" Placement="Placement.Top"><MudIconButton OnClick="ScanForDevices" Icon="@Icons.Material.Filled.CloudSync" Size="Size.Medium" Class="pa-0" /></MudTooltip>
+            </MudStack>
+            <MudStack Row>
+                <MudButton Variant="Variant.Filled" Color="Color.Info">@AppStrings.UpdateFortniteOnSelected</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success">@AppStrings.TurnOnSelectedDevices</MudButton>
+            </MudStack>
+        </MudStack>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="name_field" T="Device" InitialDirection="SortDirection.Descending">@AppStrings.Name</MudTableSortLabel></MudTh>
+        <MudTh>@AppStrings.IpAddress</MudTh>
+        <MudTh>@AppStrings.MacAddress</MudTh>
+        <MudTh>@AppStrings.Status</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <DevicesTableRow Device="context" />
+    </RowTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <MudTr>
+                <td colspan="12" class="pa-4">
+                    <ProcessQueueList Device="context" />
+                </td>
+            </MudTr>
+        }
+    </ChildRowContent>
+</MudTable>
+
+@code {
+    private HashSet<Device> SelectedDevices { get; set; } = [];
+
+    private string SearchValue
+    {
+        get
+        {
+            Task<string?> task = Task.Run(() => SecureStorage.GetAsync(Contants.DeviceSearchKey));
+            task.Wait();
+
+            return task.Result ?? string.Empty;
+        }
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                SecureStorage.Remove(Contants.DeviceSearchKey);
+            } 
+            else
+            {
+                Task task = Task.Run(() => SecureStorage.SetAsync(Contants.DeviceSearchKey, value));
+                task.Wait();
+            }
+        }
+    }
+
+    private bool IsScanning { get; set; }
+
+    private readonly RenderFragment loadingContentBody = 
+        @<text>
+            @for (int r = 0; r< 4; r++)
+            {
+                <MudTr>
+                    @for (int c = 0; c< 5; c++)
+                    {
+                        <MudTd><MudSkeleton /></MudTd>
+                    }
+                </MudTr>
+            }
+        </text>
+    ;
+
+    private MudTable<Device> Table { get; set; }
+
+    private System.Timers.Timer RefreshTimer { get; set; } = new(500);
+
+    protected override void OnInitialized()
+    {
+        RefreshTimer.Elapsed += (x, y) => InvokeAsync(StateHasChanged);
+        RefreshTimer.Start();
+    }
+
+    public void Dispose()
+    {
+        RefreshTimer.Dispose();
+    }
+
+    private async Task<TableData<Device>> GetDevices(TableState state, CancellationToken token)
+    {
+        List<Device> devices = [];
+        string devicesFilePath = Path.Combine(Environment.CurrentDirectory, "devices");
+
+        if (!File.Exists(devicesFilePath))
+        {
+            return new TableData<Device> { TotalItems = devices.Count, Items = devices };
+        }
+
+        string[] lines = await File.ReadAllLinesAsync(devicesFilePath, token);
+        foreach (string line in lines.Skip(1))
+        {
+            devices.Add(new Device(line));
+        }
+
+        if (!string.IsNullOrEmpty(SearchValue))
+        {
+            devices = devices.Where(d => d.Name.Contains(SearchValue)).ToList();
+        }
+
+        switch (state.SortLabel)
+        {
+            case "name_field":
+                devices = devices.OrderByDirection(state.SortDirection, o => o.Name).ToList();
+                break;
+        }
+
+        return new TableData<Device> { TotalItems = devices.Count, Items = devices };
+    }
+
+    private async Task ScanForDevices()
+    {
+        IsScanning = true;
+
+        try
+        {
+            File.Delete(Path.Combine(Environment.CurrentDirectory, "devices"));
+            StateHasChanged();
+
+            var searchResult = await Cli.Wrap("WakeMeOnLan.exe")
+                .WithWorkingDirectory(Environment.CurrentDirectory)
+                .WithArguments("/scan")
+                .ExecuteAsync();
+
+            var saveResult = await Cli.Wrap("WakeMeOnLan.exe")
+                .WithWorkingDirectory(Environment.CurrentDirectory)
+                .WithArguments("/scomma devices")
+                .ExecuteAsync();
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);   
+        }
+
+        IsScanning = false;
+
+        await Table.ReloadServerData();
+    }
+
+    private async Task OnSearch(string searchValue)
+    {
+        SearchValue = searchValue;
+
+        await Table.ReloadServerData();
+    }
+}

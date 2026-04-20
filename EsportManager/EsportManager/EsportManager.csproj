@@ -92,6 +92,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Features\Devices\CheckDeviceStatus\" />
+      <Folder Include="Features\Devices\ShowDetails\" />
       <Folder Include="Shared\Robocopy\" />
     </ItemGroup>
 

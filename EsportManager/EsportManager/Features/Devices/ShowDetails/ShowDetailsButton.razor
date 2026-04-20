@@ -1,0 +1,13 @@
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+
+@if (Device != null)
+{
+    <MudTooltip Text="@AppStrings.ShowDetails" Placement="Placement.Top"><MudIconButton OnClick="() => Device.ShowDetails = !Device.ShowDetails" Icon="@Icons.Material.Filled.KeyboardArrowDown" Class="pa-0" /></MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public Device Device { get; set; }
+}
