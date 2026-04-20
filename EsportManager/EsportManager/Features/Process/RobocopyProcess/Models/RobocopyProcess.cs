@@ -13,7 +13,7 @@ public class RobocopyProcess : DeviceProcess
     {
     }
 
-    public RobocopyProcess(string name, CliWrap.Command command, string logPath) : base(name, command, logPath)
+    public RobocopyProcess(string name, CliWrap.Command command, Serilog.ILogger logger) : base(name, command, logger)
     {
     }
 

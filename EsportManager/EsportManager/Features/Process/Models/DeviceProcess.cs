@@ -1,5 +1,6 @@
 ﻿using CliWrap.EventStream;
 using EsportManager.Resources.Strings;
+using Serilog;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -12,17 +13,16 @@ public class DeviceProcess
     {
         _name = name;
         _command = command;
-        LogPath = string.Empty;
         _status = ProcessStatus.Initialized;
         _output = string.Empty;
         _cancellationTokenSource = new CancellationTokenSource();
     }
 
-    public DeviceProcess(string name, CliWrap.Command command, string logPath)
+    public DeviceProcess(string name, CliWrap.Command command, Serilog.ILogger logger)
     {
         _name = name;
         _command = command;
-        LogPath = logPath;
+        _logger = logger;
         _status = ProcessStatus.Initialized;
         _output = string.Empty;
         _cancellationTokenSource = new CancellationTokenSource();
@@ -75,7 +75,7 @@ public class DeviceProcess
         get => _cancellationTokenSource;
     }
 
-    private string LogPath { get; set; }
+    private Serilog.ILogger? _logger { get; set; }
     private bool CancelRequestedByUser { get; set; }
 
     public async Task Run()
@@ -166,10 +166,7 @@ public class DeviceProcess
 
         if (IsInvalidOutput(output)) return;
 
-        if (!string.IsNullOrWhiteSpace(LogPath))
-        {
-            File.AppendAllLines(LogPath, [output]);
-        }
+        _logger?.Information(output);
 
         Regex regex = new(@"^\d+(\.\d+)?%$");
         if (regex.IsMatch(output))

@@ -1,4 +1,5 @@
 ﻿@using CliWrap
+@using EsportManager.Features.Process
 @using EsportManager.Features.Process.Models
 @using EsportManager.Features.Process.RobocopyProcess.Models
 @using MudBlazor
@@ -6,6 +7,7 @@
 @using EsportManager.Resources.Strings
 @inject ISnackbar _snackbar
 @inject LaunchSettings _launchSettings
+@inject ProcessLoggerFactory _loggerFactory
 
 @if (Device != null)
 {
@@ -18,6 +20,8 @@
     [Parameter]
     public Device? Device { get; set; }
 
+    public Serilog.ILogger Logger { get; set; }
+
     public async Task UpdateFortnite()
     {
         try
@@ -29,7 +33,7 @@
             }
 
             List<DeviceProcess> processes = [];
-
+            
             processes.Add(CopyFortniteGameFiles());
             processes.Add(CopyFortniteManiFestFiles());
 
@@ -44,9 +48,6 @@
 
     private RobocopyProcess CopyFortniteGameFiles()
     {
-        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
-        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Device.Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
-
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
             .WithArguments($@"\\{_launchSettings.Server}\Fortnite \\{Device.IPAddress.ToString()}\CDrive\ProgramFiles\EpicGames\Fortnite /MIR /FFT /COPY:DATS /DCOPY:DAT")
@@ -55,17 +56,16 @@
         var process = new RobocopyProcess(
             name: AppStrings.CopyFortniteGameFiles,
             command: cmd,
-            logPath: logPath
+            logger: Logger
         );
+
+        Logger.Information("Created CopyFortniteGameFiles process: {@Process}", process);
 
         return process;
     }
 
     private RobocopyProcess CopyFortniteManiFestFiles()
     {
-        Directory.CreateDirectory($@"{Environment.CurrentDirectory}\Logs");
-        string logPath = $@"{Environment.CurrentDirectory}\Logs\{Device.Name}_Fortnite_{DateTime.Now.Date.ToShortDateString()}.txt";
-
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
             .WithArguments($@"\\{_launchSettings.Server}\FortniteManifests \\{Device.IPAddress.ToString()}\CDrive\ProgramData\Epic\EpicGamesLauncher\Data\Manifests /E /COPY:DATS")
@@ -74,7 +74,7 @@
         var process = new RobocopyProcess(
             name: AppStrings.CopyFortniteManifests,
             command: cmd,
-            logPath: logPath
+            logger: Logger
         );
 
         return process;

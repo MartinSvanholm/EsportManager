@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
+using EsportManager.Features.Process;
 
 namespace EsportManager
 {
@@ -16,6 +17,7 @@ namespace EsportManager
                 });
 
             builder.Services.AddSingleton<LaunchSettings>();
+            builder.Services.AddSingleton<ProcessLoggerFactory>();
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices()
                 .AddMudBlazorSnackbar((config) =>
