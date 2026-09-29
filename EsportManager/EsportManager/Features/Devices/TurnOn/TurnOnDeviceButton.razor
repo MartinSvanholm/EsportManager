@@ -1,7 +1,12 @@
-﻿@using EsportManager.Resources.Strings
+@using CliWrap
+@using EsportManager.Features.Process
+@using EsportManager.Features.Process.Models
+@using EsportManager.Features.Process.PingProcess.Models
+@using EsportManager.Features.Process.WakeOnLanProcess.Models
+@using EsportManager.Resources.Strings
 @using MudBlazor
 @using EsportManager.Features.Devices.Models
-@inject ISnackbar _snackbar
+@inject ProcessLoggerFactory _loggerFactory
 
 @if (Device != null)
 {
@@ -12,27 +17,26 @@
     [Parameter]
     public Device Device { get; set; }
 
-    private async Task TurnOnDevice()
+    private const int WakeConfirmPingAttempts = 20;
+    private const int WakeConfirmPingIntervalSeconds = 3;
+
+    private void TurnOnDevice()
     {
-        var snackbar = _snackbar.Add(AppStrings.Waiting30Seconds, Severity.Info, key: "ping_snackbar");
+        var wakeOnLanCmd = Cli.Wrap("WakeMeOnLan.exe")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($"/wakeup {Device.MACAdress}")
+            .WithValidation(CommandResultValidation.None);
 
-        await Device.TurnOn(PingCompletedHandler);
+        var pingCmd = Cli.Wrap("ping")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($"-n {WakeConfirmPingAttempts} -w {WakeConfirmPingIntervalSeconds * 1000} {Device.IPAddress}")
+            .WithValidation(CommandResultValidation.None);
 
-        StateHasChanged();
-    }
+        Device.EnqueueProcesses([
+            new WakeOnLanProcess(AppStrings.WakeOnLan, wakeOnLanCmd, _loggerFactory.CreateWakeOnLanLogger(Device.Name)),
+            new PingProcess(AppStrings.PingStepName, pingCmd, WakeConfirmPingAttempts, WakeConfirmPingIntervalSeconds, _loggerFactory.CreatePingLogger(Device.Name))
+        ]);
 
-    private void PingCompletedHandler()
-    {
-
-        if (Device.Status == Device.StatusEnum.Online)
-        {
-            _snackbar.Add(string.Format(AppStrings.DeviceIsOnline, Device.Name), Severity.Success);
-        }
-        else if (Device.Status == Device.StatusEnum.Offline)
-        {
-            _snackbar.Add(string.Format(AppStrings.DeviceIsOffline, Device.Name), Severity.Error);
-        }
-
-        StateHasChanged();
+        Device.ShowDetails = true;
     }
 }

@@ -358,7 +358,7 @@ namespace EsportManager.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Start kø.
+        ///   Looks up a localized string similar to Udfør plan.
         /// </summary>
         internal static string StartQueue {
             get {
@@ -507,6 +507,60 @@ namespace EsportManager.Resources.Strings {
         internal static string Waiting5Seconds {
             get {
                 return ResourceManager.GetString("Waiting5Seconds", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Wake-on-LAN.
+        /// </summary>
+        internal static string WakeOnLan {
+            get {
+                return ResourceManager.GetString("WakeOnLan", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ping.
+        /// </summary>
+        internal static string PingStepName {
+            get {
+                return ResourceManager.GetString("PingStepName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Online.
+        /// </summary>
+        internal static string PingStatusOnline {
+            get {
+                return ResourceManager.GetString("PingStatusOnline", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Offline.
+        /// </summary>
+        internal static string PingStatusOffline {
+            get {
+                return ResourceManager.GetString("PingStatusOffline", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Forsøg {0} af {1}.
+        /// </summary>
+        internal static string PingAttempt {
+            get {
+                return ResourceManager.GetString("PingAttempt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Næste forsøg om {0}s.
+        /// </summary>
+        internal static string PingNextAttemptIn {
+            get {
+                return ResourceManager.GetString("PingNextAttemptIn", resourceCulture);
             }
         }
     }

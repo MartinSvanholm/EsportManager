@@ -157,7 +157,7 @@
     <value>Opgavekø</value>
   </data>
   <data name="StartQueue" xml:space="preserve">
-    <value>Start kø</value>
+    <value>Udfør plan</value>
   </data>
   <data name="ClearQueue" xml:space="preserve">
     <value>Ryd kø</value>
@@ -266,5 +266,23 @@
   </data>
   <data name="ProcessExitedWithCode" xml:space="preserve">
     <value>Proces afsluttet med kode {0}</value>
+  </data>
+  <data name="WakeOnLan" xml:space="preserve">
+    <value>Wake-on-LAN</value>
+  </data>
+  <data name="PingStepName" xml:space="preserve">
+    <value>Ping</value>
+  </data>
+  <data name="PingStatusOnline" xml:space="preserve">
+    <value>Online</value>
+  </data>
+  <data name="PingStatusOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="PingAttempt" xml:space="preserve">
+    <value>Forsøg {0} af {1}</value>
+  </data>
+  <data name="PingNextAttemptIn" xml:space="preserve">
+    <value>Næste forsøg om {0}s</value>
   </data>
 </root>

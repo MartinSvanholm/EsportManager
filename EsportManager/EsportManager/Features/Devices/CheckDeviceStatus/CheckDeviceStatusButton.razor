@@ -1,7 +1,11 @@
+@using CliWrap
+@using EsportManager.Features.Process
+@using EsportManager.Features.Process.Models
+@using EsportManager.Features.Process.PingProcess.Models
 @using EsportManager.Resources.Strings
 @using MudBlazor
 @using EsportManager.Features.Devices.Models
-@inject ISnackbar _snackbar
+@inject ProcessLoggerFactory _loggerFactory
 
 @if (Device != null)
 {
@@ -12,27 +16,18 @@
     [Parameter]
     public Device Device { get; set; }
 
+    private const int CheckStatusPingAttempts = 1;
+    private const int CheckStatusPingIntervalSeconds = 5;
+
     private void CheckDeviceStatus()
     {
-        var snackbar = _snackbar.Add(AppStrings.Waiting5Seconds, Severity.Info, key: "ping_snackbar");
+        var pingCmd = Cli.Wrap("ping")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($"-n {CheckStatusPingAttempts} -w {CheckStatusPingIntervalSeconds * 1000} {Device.IPAddress}")
+            .WithValidation(CommandResultValidation.None);
 
-        Device.CheckStatus(() => PingCompletedHandler());
+        Device.EnqueueProcess(new PingProcess(AppStrings.PingStepName, pingCmd, CheckStatusPingAttempts, CheckStatusPingIntervalSeconds, _loggerFactory.CreatePingLogger(Device.Name)));
 
-        StateHasChanged();
-    }
-
-    private void PingCompletedHandler()
-    {
-
-        if (Device.Status == Device.StatusEnum.Online)
-        {
-            _snackbar.Add(string.Format(AppStrings.DeviceIsOnline, Device.Name), Severity.Success);
-        }
-        else if (Device.Status == Device.StatusEnum.Offline)
-        {
-            _snackbar.Add(string.Format(AppStrings.DeviceIsOffline, Device.Name), Severity.Error);
-        }
-
-        StateHasChanged();
+        Device.ShowDetails = true;
     }
 }

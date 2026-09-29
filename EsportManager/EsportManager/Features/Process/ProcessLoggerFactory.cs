@@ -11,6 +11,16 @@ public class ProcessLoggerFactory
         return CreateLogger(deviceName, "UpdateFortnite");
     }
 
+    public Serilog.ILogger CreateWakeOnLanLogger(string deviceName)
+    {
+        return CreateLogger(deviceName, "WakeOnLan");
+    }
+
+    public Serilog.ILogger CreatePingLogger(string deviceName)
+    {
+        return CreateLogger(deviceName, "Ping");
+    }
+
     public Serilog.ILogger CreateLogger(string deviceName, string processName)
     {
         Directory.CreateDirectory(_logDirectory);

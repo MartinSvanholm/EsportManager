@@ -107,6 +107,7 @@ public class DeviceProcess
             {
                 _status = ProcessStatus.CancelledByUser;
                 Debug.WriteLine($"Process cancelled by user: {oce.Message}");
+                return;
             }
 
             _status = ProcessStatus.FinishedWithError;
