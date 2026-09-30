@@ -1,5 +1,4 @@
-﻿@using CliWrap
-@using CliWrap.EventStream
+﻿@using EsportManager.Features.Devices
 @using EsportManager.Features.Devices.UpdateFortnite
 @using EsportManager.Features.Process.Models
 @using MudBlazor
@@ -9,6 +8,7 @@
 @using EsportManager
 @using EsportManager.Resources.Strings
 @inject ISnackbar _snackbar
+@inject DeviceStore _deviceStore
 @implements IDisposable
 
 <MudTable T="Device" 
@@ -116,19 +116,8 @@
 
     private async Task<TableData<Device>> GetDevices(TableState state, CancellationToken token)
     {
-        List<Device> devices = [];
-        string devicesFilePath = Path.Combine(Environment.CurrentDirectory, "devices");
-
-        if (!File.Exists(devicesFilePath))
-        {
-            return new TableData<Device> { TotalItems = devices.Count, Items = devices };
-        }
-
-        string[] lines = await File.ReadAllLinesAsync(devicesFilePath, token);
-        foreach (string line in lines.Skip(1))
-        {
-            devices.Add(new Device(line));
-        }
+        await _deviceStore.EnsureLoadedAsync(token);
+        List<Device> devices = _deviceStore.Devices.ToList();
 
         if (!string.IsNullOrEmpty(SearchValue))
         {
@@ -148,21 +137,11 @@
     private async Task ScanForDevices()
     {
         IsScanning = true;
+        StateHasChanged();
 
         try
         {
-            File.Delete(Path.Combine(Environment.CurrentDirectory, "devices"));
-            StateHasChanged();
-
-            var searchResult = await Cli.Wrap("WakeMeOnLan.exe")
-                .WithWorkingDirectory(Environment.CurrentDirectory)
-                .WithArguments("/scan")
-                .ExecuteAsync();
-
-            var saveResult = await Cli.Wrap("WakeMeOnLan.exe")
-                .WithWorkingDirectory(Environment.CurrentDirectory)
-                .WithArguments("/scomma devices")
-                .ExecuteAsync();
+            await _deviceStore.ScanAsync();
         }
         catch (Exception e)
         {

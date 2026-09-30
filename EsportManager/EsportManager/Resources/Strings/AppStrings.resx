@@ -285,4 +285,118 @@
   <data name="PingNextAttemptIn" xml:space="preserve">
     <value>Næste forsøg om {0}s</value>
   </data>
+  <data name="RobocopyErrorAccessDenied" xml:space="preserve">
+    <value>Adgang nægtet, tjek login under enhedsindstillinger</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Indstillinger</value>
+  </data>
+  <data name="DefaultCopyCredentials" xml:space="preserve">
+    <value>Standard login til kopiering</value>
+  </data>
+  <data name="DefaultCopyCredentialsDescription" xml:space="preserve">
+    <value>Bruges til alle enheder uden eget login. Gemmes i Windows Legitimationsstyring.</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>Brugernavn</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Adgangskode</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Gem</value>
+  </data>
+  <data name="UserNameAndPasswordRequired" xml:space="preserve">
+    <value>Brugernavn og adgangskode skal udfyldes</value>
+  </data>
+  <data name="CredentialsSaved" xml:space="preserve">
+    <value>Login gemt</value>
+  </data>
+  <data name="CredentialsSavedForDevices" xml:space="preserve">
+    <value>Login gemt og anvendt på {0} enheder</value>
+  </data>
+  <data name="DeviceSettings" xml:space="preserve">
+    <value>Enhedsindstillinger</value>
+  </data>
+  <data name="DeviceNotFound" xml:space="preserve">
+    <value>Enheden blev ikke fundet</value>
+  </data>
+  <data name="DeviceInfo" xml:space="preserve">
+    <value>Enhedsinformation</value>
+  </data>
+  <data name="CopyCredentials" xml:space="preserve">
+    <value>Login til kopiering</value>
+  </data>
+  <data name="UseCustomCredentials" xml:space="preserve">
+    <value>Brug eget login til denne enhed</value>
+  </data>
+  <data name="UsingDefaultCredentials" xml:space="preserve">
+    <value>Bruger standard login ({0})</value>
+  </data>
+  <data name="NoDefaultCredentials" xml:space="preserve">
+    <value>Der er ikke angivet et standard login under Indstillinger</value>
+  </data>
+  <data name="TestConnection" xml:space="preserve">
+    <value>Test forbindelse</value>
+  </data>
+  <data name="ConnectionOk" xml:space="preserve">
+    <value>Forbindelsen virker, begge delinger kan skrives til</value>
+  </data>
+  <data name="ConnectionDeviceOffline" xml:space="preserve">
+    <value>Enheden svarer ikke</value>
+  </data>
+  <data name="ConnectionShareNotFound" xml:space="preserve">
+    <value>Delingen {0} blev ikke fundet. Kør SetupCopyShares.ps1 på enheden</value>
+  </data>
+  <data name="ConnectionAccessDenied" xml:space="preserve">
+    <value>Adgang nægtet til {0}</value>
+  </data>
+  <data name="ConnectionFailed" xml:space="preserve">
+    <value>Kunne ikke forbinde til {0}: {1}</value>
+  </data>
+  <data name="SetupScript" xml:space="preserve">
+    <value>Opsætningsscript til klub-PC'er</value>
+  </data>
+  <data name="SetupScriptDescription" xml:space="preserve">
+    <value>Scriptet bruger det gemte standard brugernavn og spørger efter adgangskoden, når det køres. Kør det som administrator på hver klub-PC for at oprette brugeren og delingerne.</value>
+  </data>
+  <data name="DownloadSetupScript" xml:space="preserve">
+    <value>Hent script</value>
+  </data>
+  <data name="SetupScriptSaved" xml:space="preserve">
+    <value>Script gemt i {0}</value>
+  </data>
+  <data name="SaveDefaultCredentialsFirst" xml:space="preserve">
+    <value>Gem et standard login, før scriptet hentes</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Fjern</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuller</value>
+  </data>
+  <data name="CredentialManagerDescription" xml:space="preserve">
+    <value>Fjerner alle enhedslogin, som programmet har gemt i Windows Legitimationsstyring. Standard login beholdes.</value>
+  </data>
+  <data name="RemoveFromCredentialManager" xml:space="preserve">
+    <value>Fjern fra Legitimationsstyring</value>
+  </data>
+  <data name="RemoveAllDevicesFromCredentialManager" xml:space="preserve">
+    <value>Fjern alle enheder fra Legitimationsstyring</value>
+  </data>
+  <data name="RemoveDeviceFromCredentialManagerConfirm" xml:space="preserve">
+    <value>Fjern login for {0} fra Legitimationsstyring, inklusiv enhedens eget login? Enheden får standard login igen ved næste scanning, eller når standard login gemmes.</value>
+  </data>
+  <data name="RemoveAllDevicesConfirm" xml:space="preserve">
+    <value>Fjern login for alle enheder, inklusiv enhedernes egne login? Standard login beholdes, og enhederne får det igen ved næste scanning, eller når standard login gemmes.</value>
+  </data>
+  <data name="RemovedFromCredentialManager" xml:space="preserve">
+    <value>Fjernet fra Legitimationsstyring</value>
+  </data>
+  <data name="RemovedDevicesFromCredentialManager" xml:space="preserve">
+    <value>Fjernede {0} enheder fra Legitimationsstyring</value>
+  </data>
+  <data name="NoNetworkCredential" xml:space="preserve">
+    <value>Der er intet login gemt i Legitimationsstyring for denne enhed</value>
+  </data>
 </root>

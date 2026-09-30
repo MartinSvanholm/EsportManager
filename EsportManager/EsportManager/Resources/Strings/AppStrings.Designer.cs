@@ -563,5 +563,347 @@ namespace EsportManager.Resources.Strings {
                 return ResourceManager.GetString("PingNextAttemptIn", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Adgang nægtet, tjek login under enhedsindstillinger.
+        /// </summary>
+        internal static string RobocopyErrorAccessDenied {
+            get {
+                return ResourceManager.GetString("RobocopyErrorAccessDenied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Indstillinger.
+        /// </summary>
+        internal static string Settings {
+            get {
+                return ResourceManager.GetString("Settings", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Standard login til kopiering.
+        /// </summary>
+        internal static string DefaultCopyCredentials {
+            get {
+                return ResourceManager.GetString("DefaultCopyCredentials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bruges til alle enheder uden eget login. Gemmes i Windows Legitimationsstyring..
+        /// </summary>
+        internal static string DefaultCopyCredentialsDescription {
+            get {
+                return ResourceManager.GetString("DefaultCopyCredentialsDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Brugernavn.
+        /// </summary>
+        internal static string UserName {
+            get {
+                return ResourceManager.GetString("UserName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Adgangskode.
+        /// </summary>
+        internal static string Password {
+            get {
+                return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Gem.
+        /// </summary>
+        internal static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Brugernavn og adgangskode skal udfyldes.
+        /// </summary>
+        internal static string UserNameAndPasswordRequired {
+            get {
+                return ResourceManager.GetString("UserNameAndPasswordRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Login gemt.
+        /// </summary>
+        internal static string CredentialsSaved {
+            get {
+                return ResourceManager.GetString("CredentialsSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Login gemt og anvendt på {0} enheder.
+        /// </summary>
+        internal static string CredentialsSavedForDevices {
+            get {
+                return ResourceManager.GetString("CredentialsSavedForDevices", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enhedsindstillinger.
+        /// </summary>
+        internal static string DeviceSettings {
+            get {
+                return ResourceManager.GetString("DeviceSettings", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enheden blev ikke fundet.
+        /// </summary>
+        internal static string DeviceNotFound {
+            get {
+                return ResourceManager.GetString("DeviceNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enhedsinformation.
+        /// </summary>
+        internal static string DeviceInfo {
+            get {
+                return ResourceManager.GetString("DeviceInfo", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Login til kopiering.
+        /// </summary>
+        internal static string CopyCredentials {
+            get {
+                return ResourceManager.GetString("CopyCredentials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Brug eget login til denne enhed.
+        /// </summary>
+        internal static string UseCustomCredentials {
+            get {
+                return ResourceManager.GetString("UseCustomCredentials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bruger standard login ({0}).
+        /// </summary>
+        internal static string UsingDefaultCredentials {
+            get {
+                return ResourceManager.GetString("UsingDefaultCredentials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Der er ikke angivet et standard login under Indstillinger.
+        /// </summary>
+        internal static string NoDefaultCredentials {
+            get {
+                return ResourceManager.GetString("NoDefaultCredentials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Test forbindelse.
+        /// </summary>
+        internal static string TestConnection {
+            get {
+                return ResourceManager.GetString("TestConnection", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Forbindelsen virker, begge delinger kan skrives til.
+        /// </summary>
+        internal static string ConnectionOk {
+            get {
+                return ResourceManager.GetString("ConnectionOk", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enheden svarer ikke.
+        /// </summary>
+        internal static string ConnectionDeviceOffline {
+            get {
+                return ResourceManager.GetString("ConnectionDeviceOffline", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delingen {0} blev ikke fundet. Kør SetupCopyShares.ps1 på enheden.
+        /// </summary>
+        internal static string ConnectionShareNotFound {
+            get {
+                return ResourceManager.GetString("ConnectionShareNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Adgang nægtet til {0}.
+        /// </summary>
+        internal static string ConnectionAccessDenied {
+            get {
+                return ResourceManager.GetString("ConnectionAccessDenied", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kunne ikke forbinde til {0}: {1}.
+        /// </summary>
+        internal static string ConnectionFailed {
+            get {
+                return ResourceManager.GetString("ConnectionFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Opsætningsscript til klub-PC'er.
+        /// </summary>
+        internal static string SetupScript {
+            get {
+                return ResourceManager.GetString("SetupScript", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Scriptet bruger det gemte standard brugernavn og spørger efter adgangskoden, når det køres. Kør det som administrator på hver klub-PC for at oprette brugeren og delingerne..
+        /// </summary>
+        internal static string SetupScriptDescription {
+            get {
+                return ResourceManager.GetString("SetupScriptDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Hent script.
+        /// </summary>
+        internal static string DownloadSetupScript {
+            get {
+                return ResourceManager.GetString("DownloadSetupScript", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Script gemt i {0}.
+        /// </summary>
+        internal static string SetupScriptSaved {
+            get {
+                return ResourceManager.GetString("SetupScriptSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Gem et standard login, før scriptet hentes.
+        /// </summary>
+        internal static string SaveDefaultCredentialsFirst {
+            get {
+                return ResourceManager.GetString("SaveDefaultCredentialsFirst", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjern.
+        /// </summary>
+        internal static string Remove {
+            get {
+                return ResourceManager.GetString("Remove", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Annuller.
+        /// </summary>
+        internal static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjerner alle enhedslogin, som programmet har gemt i Windows Legitimationsstyring. Standard login beholdes..
+        /// </summary>
+        internal static string CredentialManagerDescription {
+            get {
+                return ResourceManager.GetString("CredentialManagerDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjern fra Legitimationsstyring.
+        /// </summary>
+        internal static string RemoveFromCredentialManager {
+            get {
+                return ResourceManager.GetString("RemoveFromCredentialManager", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjern alle enheder fra Legitimationsstyring.
+        /// </summary>
+        internal static string RemoveAllDevicesFromCredentialManager {
+            get {
+                return ResourceManager.GetString("RemoveAllDevicesFromCredentialManager", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjern login for {0} fra Legitimationsstyring, inklusiv enhedens eget login? Enheden får standard login igen ved næste scanning, eller når standard login gemmes..
+        /// </summary>
+        internal static string RemoveDeviceFromCredentialManagerConfirm {
+            get {
+                return ResourceManager.GetString("RemoveDeviceFromCredentialManagerConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjern login for alle enheder, inklusiv enhedernes egne login? Standard login beholdes, og enhederne får det igen ved næste scanning, eller når standard login gemmes..
+        /// </summary>
+        internal static string RemoveAllDevicesConfirm {
+            get {
+                return ResourceManager.GetString("RemoveAllDevicesConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjernet fra Legitimationsstyring.
+        /// </summary>
+        internal static string RemovedFromCredentialManager {
+            get {
+                return ResourceManager.GetString("RemovedFromCredentialManager", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fjernede {0} enheder fra Legitimationsstyring.
+        /// </summary>
+        internal static string RemovedDevicesFromCredentialManager {
+            get {
+                return ResourceManager.GetString("RemovedDevicesFromCredentialManager", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Der er intet login gemt i Legitimationsstyring for denne enhed.
+        /// </summary>
+        internal static string NoNetworkCredential {
+            get {
+                return ResourceManager.GetString("NoNetworkCredential", resourceCulture);
+            }
+        }
     }
 }

@@ -52,7 +52,7 @@
     {
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\{_launchSettings.Server}\Fortnite \\{Device.IPAddress.ToString()}\CDrive\ProgramFiles\EpicGames\Fortnite /MIR /FFT /COPY:DATS /DCOPY:DAT")
+            .WithArguments($@"\\{_launchSettings.Server}\Fortnite \\{Device.IPAddress.ToString()}\{FortniteShares.GameFiles} /MIR /FFT /COPY:DAT /DCOPY:DAT")
             .WithValidation(CommandResultValidation.None);
 
         var process = new RobocopyProcess(
@@ -68,7 +68,7 @@
     {
         var cmd = Cli.Wrap($"robocopy")
             .WithWorkingDirectory(Environment.CurrentDirectory)
-            .WithArguments($@"\\{_launchSettings.Server}\FortniteManifests \\{Device.IPAddress.ToString()}\CDrive\ProgramData\Epic\EpicGamesLauncher\Data\Manifests /E /COPY:DATS")
+            .WithArguments($@"\\{_launchSettings.Server}\FortniteManifests \\{Device.IPAddress.ToString()}\{FortniteShares.Manifests} /E /COPY:DAT")
             .WithValidation(CommandResultValidation.None);
 
         var process = new RobocopyProcess(

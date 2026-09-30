@@ -1,0 +1,233 @@
+@page "/devices/{Ip}"
+@using System.Net
+@using EsportManager.Features.Credentials
+@using EsportManager.Features.Credentials.Components
+@using EsportManager.Features.Credentials.Models
+@using EsportManager.Features.Devices.Models
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@inject DeviceStore _deviceStore
+@inject CredentialStore _credentialStore
+@inject ISnackbar _snackbar
+@inject IDialogService _dialogService
+@implements IDisposable
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-5">
+    <MudStack Row AlignItems="AlignItems.Center" Class="mb-4">
+        <MudIconButton Href="/" Icon="@Icons.Material.Filled.ArrowBack" />
+        <MudText Typo="Typo.h5">@AppStrings.DeviceSettings</MudText>
+    </MudStack>
+
+    @if (_device == null)
+    {
+        @if (_isLoaded)
+        {
+            <MudAlert Severity="Severity.Warning">@AppStrings.DeviceNotFound</MudAlert>
+        }
+    }
+    else
+    {
+        <MudPaper Class="pa-4 mb-4">
+            <MudText Typo="Typo.h6" Class="mb-2">@AppStrings.DeviceInfo</MudText>
+            <MudSimpleTable Dense Elevation="0">
+                <tbody>
+                    <tr><td>@AppStrings.Name</td><td>@_device.Name</td></tr>
+                    <tr><td>@AppStrings.IpAddress</td><td>@_device.IPAddress</td></tr>
+                    <tr><td>@AppStrings.MacAddress</td><td>@_device.MACAdress</td></tr>
+                    <tr><td>@AppStrings.Status</td><td>@_device.Status.ToString()</td></tr>
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
+
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.h6">@AppStrings.CopyCredentials</MudText>
+            <MudSwitch T="bool" @bind-Value="_useCustomCredentials" Label="@AppStrings.UseCustomCredentials" Color="Color.Primary" Class="mb-3" />
+
+            @if (_useCustomCredentials)
+            {
+                <CredentialFields @bind-UserName="_userName" @bind-Password="_password" />
+            }
+            else if (_defaultCredential != null)
+            {
+                <MudText Typo="Typo.body2">@string.Format(AppStrings.UsingDefaultCredentials, _defaultCredential.UserName)</MudText>
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Warning" Dense>@AppStrings.NoDefaultCredentials</MudAlert>
+            }
+
+            @if (!_hasNetworkCredential)
+            {
+                <MudAlert Severity="Severity.Info" Dense Class="mt-3">@AppStrings.NoNetworkCredential</MudAlert>
+            }
+
+            <MudStack Row AlignItems="AlignItems.Center" Class="mt-4">
+                <MudButton OnClick="Save" Variant="Variant.Filled" Color="Color.Primary">@AppStrings.Save</MudButton>
+                <MudButton OnClick="TestConnection" Variant="Variant.Outlined" Disabled="_isTesting">@AppStrings.TestConnection</MudButton>
+                <MudButton OnClick="RemoveFromCredentialManager" Variant="Variant.Outlined" Color="Color.Error"
+                           Disabled="!_hasNetworkCredential && !_hasDeviceCredential">@AppStrings.RemoveFromCredentialManager</MudButton>
+                @if (_isTesting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate />
+                }
+            </MudStack>
+
+            @if (_testResult != null)
+            {
+                <MudAlert Severity="@(_testResult.Success ? Severity.Success : Severity.Error)" Class="mt-4">@_testResult.Message</MudAlert>
+            }
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string Ip { get; set; } = string.Empty;
+
+    private Device? _device;
+    private bool _isLoaded;
+
+    private CopyCredential? _defaultCredential;
+    private bool _hasDeviceCredential;
+    private bool _hasNetworkCredential;
+    private bool _useCustomCredentials;
+    private string _userName = string.Empty;
+    private string _password = string.Empty;
+
+    private bool _isTesting;
+    private ShareConnectionTester.Result? _testResult;
+
+    private readonly System.Timers.Timer _refreshTimer = new(500);
+
+    protected override void OnInitialized()
+    {
+        _refreshTimer.Elapsed += (x, y) => InvokeAsync(StateHasChanged);
+        _refreshTimer.Start();
+    }
+
+    public void Dispose()
+    {
+        _refreshTimer.Dispose();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await _deviceStore.EnsureLoadedAsync();
+        _device = IPAddress.TryParse(Ip, out IPAddress? ip) ? _deviceStore.Find(ip) : null;
+        _isLoaded = true;
+        _testResult = null;
+
+        LoadCredentials();
+    }
+
+    private void LoadCredentials()
+    {
+        if (_device == null)
+        {
+            return;
+        }
+
+        try
+        {
+            _defaultCredential = _credentialStore.GetDefault();
+            CopyCredential? deviceCredential = _credentialStore.GetDeviceCredential(_device.IPAddress);
+
+            _hasDeviceCredential = deviceCredential != null;
+            _hasNetworkCredential = _credentialStore.HasNetworkCredential(_device.IPAddress);
+            _useCustomCredentials = _hasDeviceCredential;
+            _userName = deviceCredential?.UserName ?? _defaultCredential?.UserName ?? CredentialStore.DefaultUserName;
+            _password = deviceCredential?.Password ?? string.Empty;
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private void Save()
+    {
+        if (_device == null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (_useCustomCredentials)
+            {
+                if (string.IsNullOrWhiteSpace(_userName) || string.IsNullOrEmpty(_password))
+                {
+                    _snackbar.Add(AppStrings.UserNameAndPasswordRequired, Severity.Warning);
+                    return;
+                }
+
+                _credentialStore.SaveDeviceCredential(_device, new CopyCredential(_userName.Trim(), _password));
+            }
+            else
+            {
+                _credentialStore.ResetDeviceToDefault(_device);
+            }
+
+            _snackbar.Add(AppStrings.CredentialsSaved, Severity.Success);
+            LoadCredentials();
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private async Task RemoveFromCredentialManager()
+    {
+        if (_device == null)
+        {
+            return;
+        }
+
+        bool? confirmed = await _dialogService.ShowMessageBox(
+            AppStrings.RemoveFromCredentialManager,
+            string.Format(AppStrings.RemoveDeviceFromCredentialManagerConfirm, _device.IPAddress),
+            yesText: AppStrings.Remove,
+            cancelText: AppStrings.Cancel);
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        try
+        {
+            _credentialStore.RemoveDevice(_device);
+            _snackbar.Add(AppStrings.RemovedFromCredentialManager, Severity.Success);
+            LoadCredentials();
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private async Task TestConnection()
+    {
+        if (_device == null)
+        {
+            return;
+        }
+
+        _isTesting = true;
+        _testResult = null;
+
+        try
+        {
+            _testResult = await ShareConnectionTester.TestAsync(_device.IPAddress);
+        }
+        catch (Exception e)
+        {
+            _testResult = new ShareConnectionTester.Result(false, e.Message);
+        }
+        finally
+        {
+            _isTesting = false;
+        }
+    }
+}

@@ -9,6 +9,7 @@ public static class RobocopyErrors
 
     public static readonly FrozenDictionary<int, RobocopyError> Errors = new Dictionary<int, RobocopyError>
     {
+        [5] = new(AppStrings.RobocopyErrorAccessDenied, ShouldBreak: true),
         [53] = new(AppStrings.RobocopyErrorPathNotFound, ShouldBreak: true),
         [1326] = new(AppStrings.RobocopyErrorIncorrectCredentials, ShouldBreak: true),
     }.ToFrozenDictionary();
