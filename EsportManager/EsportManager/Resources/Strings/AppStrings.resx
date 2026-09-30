@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Devices" xml:space="preserve">
+    <value>Enheder</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Søg</value>
+  </data>
+  <data name="ScanNetworkForDevices" xml:space="preserve">
+    <value>Scan netværk for enheder</value>
+  </data>
+  <data name="UpdateFortniteOnSelected" xml:space="preserve">
+    <value>Opdater Fortnite på valgte enheder</value>
+  </data>
+  <data name="TurnOnSelectedDevices" xml:space="preserve">
+    <value>Tænd valgte enheder</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Navn</value>
+  </data>
+  <data name="IpAddress" xml:space="preserve">
+    <value>IP-adresse</value>
+  </data>
+  <data name="MacAddress" xml:space="preserve">
+    <value>MAC-adresse</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="TurnOn" xml:space="preserve">
+    <value>Tænd</value>
+  </data>
+  <data name="CheckStatus" xml:space="preserve">
+    <value>Tjek status</value>
+  </data>
+  <data name="ShowDetails" xml:space="preserve">
+    <value>Vis detaljer</value>
+  </data>
+  <data name="TaskQueue" xml:space="preserve">
+    <value>Opgavekø</value>
+  </data>
+  <data name="StartQueue" xml:space="preserve">
+    <value>Udfør plan</value>
+  </data>
+  <data name="ClearQueue" xml:space="preserve">
+    <value>Ryd kø</value>
+  </data>
+  <data name="StopUpdate" xml:space="preserve">
+    <value>Stop opdatering</value>
+  </data>
+  <data name="StatusLabel" xml:space="preserve">
+    <value>Status:</value>
+  </data>
+  <data name="OutputLabel" xml:space="preserve">
+    <value>Output:</value>
+  </data>
+  <data name="Waiting30Seconds" xml:space="preserve">
+    <value>Venter 30 sekunder på svar fra enhed</value>
+  </data>
+  <data name="Waiting5Seconds" xml:space="preserve">
+    <value>Venter 5 sekunder på svar fra enhed</value>
+  </data>
+  <data name="DeviceIsOnline" xml:space="preserve">
+    <value>{0} er online</value>
+  </data>
+  <data name="DeviceIsOffline" xml:space="preserve">
+    <value>{0} er offline</value>
+  </data>
+  <data name="UpdateFortnite" xml:space="preserve">
+    <value>Opdater Fortnite</value>
+  </data>
+  <data name="DeviceIsNull" xml:space="preserve">
+    <value>Enhed er null</value>
+  </data>
+  <data name="CopyFortniteGameFiles" xml:space="preserve">
+    <value>Kopiér Fortnite-spilfiler</value>
+  </data>
+  <data name="CopyFortniteManifests" xml:space="preserve">
+    <value>Kopiér Fortnite-manifester</value>
+  </data>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Instrumentbræt</value>
+  </data>
+  <data name="Manager" xml:space="preserve">
+    <value>Manager</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Ikke fundet</value>
+  </data>
+  <data name="NotFoundMessage" xml:space="preserve">
+    <value>Beklager, indholdet du leder efter, eksisterer ikke.</value>
+  </data>
+  <data name="StatusInitialized" xml:space="preserve">
+    <value>Initialiseret</value>
+  </data>
+  <data name="StatusRunning" xml:space="preserve">
+    <value>Kører</value>
+  </data>
+  <data name="StatusFinished" xml:space="preserve">
+    <value>Færdig</value>
+  </data>
+  <data name="StatusFinishedWithError" xml:space="preserve">
+    <value>Færdig med fejl</value>
+  </data>
+  <data name="StatusCancelledByUser" xml:space="preserve">
+    <value>Annulleret af bruger</value>
+  </data>
+  <data name="StatusCancelledWithError" xml:space="preserve">
+    <value>Annulleret med fejl</value>
+  </data>
+  <data name="RobocopyNoFilesCopied" xml:space="preserve">
+    <value>Ingen filer blev kopieret. Ingen fejl opstod. Ingen filer var forskellige.</value>
+  </data>
+  <data name="RobocopyFilesCopied" xml:space="preserve">
+    <value>En eller flere filer blev kopieret.</value>
+  </data>
+  <data name="RobocopyExtraFilesDetected" xml:space="preserve">
+    <value>Ekstra filer eller mapper blev fundet.</value>
+  </data>
+  <data name="RobocopyFilesCopiedAndExtra" xml:space="preserve">
+    <value>En eller flere filer blev kopieret. Ekstra filer eller mapper blev fundet.</value>
+  </data>
+  <data name="RobocopyMismatchDetected" xml:space="preserve">
+    <value>Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyFilesCopiedAndMismatch" xml:space="preserve">
+    <value>En eller flere filer blev kopieret. Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyExtraAndMismatch" xml:space="preserve">
+    <value>Ekstra filer eller mapper blev fundet. Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyFilesCopiedExtraAndMismatch" xml:space="preserve">
+    <value>En eller flere filer blev kopieret. Ekstra filer eller mapper blev fundet. Filer eller mapper med uoverensstemmelser blev fundet.</value>
+  </data>
+  <data name="RobocopyCopyErrors" xml:space="preserve">
+    <value>Nogle filer eller mapper kunne ikke kopieres (kopieringsfejl opstod og forsøgsgrænsen blev overskredet).</value>
+  </data>
+  <data name="RobocopyFatalError" xml:space="preserve">
+    <value>Alvorlig fejl. Robocopy kopierede ingen filer.</value>
+  </data>
+  <data name="RobocopyErrorPathNotFound" xml:space="preserve">
+    <value>Stien blev ikke fundet, kan skyldes at enheden ikke er online endnu</value>
+  </data>
+  <data name="RobocopyErrorIncorrectCredentials" xml:space="preserve">
+    <value>Forkert brugernavn eller adgangskode</value>
+  </data>
+  <data name="ProcessStarted" xml:space="preserve">
+    <value>Proces startet; ID: {0}</value>
+  </data>
+  <data name="ProcessExitedWithCode" xml:space="preserve">
+    <value>Proces afsluttet med kode {0}</value>
+  </data>
+  <data name="WakeOnLan" xml:space="preserve">
+    <value>Wake-on-LAN</value>
+  </data>
+  <data name="PingStepName" xml:space="preserve">
+    <value>Ping</value>
+  </data>
+  <data name="PingStatusOnline" xml:space="preserve">
+    <value>Online</value>
+  </data>
+  <data name="PingStatusOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="PingAttempt" xml:space="preserve">
+    <value>Forsøg {0} af {1}</value>
+  </data>
+  <data name="PingNextAttemptIn" xml:space="preserve">
+    <value>Næste forsøg om {0}s</value>
+  </data>
+  <data name="RobocopyErrorAccessDenied" xml:space="preserve">
+    <value>Adgang nægtet, tjek login under enhedsindstillinger</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Indstillinger</value>
+  </data>
+  <data name="DefaultCopyCredentials" xml:space="preserve">
+    <value>Standard login til kopiering</value>
+  </data>
+  <data name="DefaultCopyCredentialsDescription" xml:space="preserve">
+    <value>Bruges til alle enheder uden eget login. Gemmes i Windows Legitimationsstyring.</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>Brugernavn</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Adgangskode</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Gem</value>
+  </data>
+  <data name="UserNameAndPasswordRequired" xml:space="preserve">
+    <value>Brugernavn og adgangskode skal udfyldes</value>
+  </data>
+  <data name="CredentialsSaved" xml:space="preserve">
+    <value>Login gemt</value>
+  </data>
+  <data name="CredentialsSavedForDevices" xml:space="preserve">
+    <value>Login gemt og anvendt på {0} enheder</value>
+  </data>
+  <data name="DeviceSettings" xml:space="preserve">
+    <value>Enhedsindstillinger</value>
+  </data>
+  <data name="DeviceNotFound" xml:space="preserve">
+    <value>Enheden blev ikke fundet</value>
+  </data>
+  <data name="DeviceInfo" xml:space="preserve">
+    <value>Enhedsinformation</value>
+  </data>
+  <data name="CopyCredentials" xml:space="preserve">
+    <value>Login til kopiering</value>
+  </data>
+  <data name="UseCustomCredentials" xml:space="preserve">
+    <value>Brug eget login til denne enhed</value>
+  </data>
+  <data name="UsingDefaultCredentials" xml:space="preserve">
+    <value>Bruger standard login ({0})</value>
+  </data>
+  <data name="NoDefaultCredentials" xml:space="preserve">
+    <value>Der er ikke angivet et standard login under Indstillinger</value>
+  </data>
+  <data name="TestConnection" xml:space="preserve">
+    <value>Test forbindelse</value>
+  </data>
+  <data name="ConnectionOk" xml:space="preserve">
+    <value>Forbindelsen virker, begge delinger kan skrives til</value>
+  </data>
+  <data name="ConnectionDeviceOffline" xml:space="preserve">
+    <value>Enheden svarer ikke</value>
+  </data>
+  <data name="ConnectionShareNotFound" xml:space="preserve">
+    <value>Delingen {0} blev ikke fundet. Kør SetupCopyShares.ps1 på enheden</value>
+  </data>
+  <data name="ConnectionAccessDenied" xml:space="preserve">
+    <value>Adgang nægtet til {0}</value>
+  </data>
+  <data name="ConnectionFailed" xml:space="preserve">
+    <value>Kunne ikke forbinde til {0}: {1}</value>
+  </data>
+  <data name="SetupScript" xml:space="preserve">
+    <value>Opsætningsscript til klub-PC'er</value>
+  </data>
+  <data name="SetupScriptDescription" xml:space="preserve">
+    <value>Scriptet bruger det gemte standard brugernavn og spørger efter adgangskoden, når det køres. Kør det som administrator på hver klub-PC for at oprette brugeren og delingerne.</value>
+  </data>
+  <data name="DownloadSetupScript" xml:space="preserve">
+    <value>Hent script</value>
+  </data>
+  <data name="SetupScriptSaved" xml:space="preserve">
+    <value>Script gemt i {0}</value>
+  </data>
+  <data name="SaveDefaultCredentialsFirst" xml:space="preserve">
+    <value>Gem et standard login, før scriptet hentes</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Fjern</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuller</value>
+  </data>
+  <data name="CredentialManagerDescription" xml:space="preserve">
+    <value>Fjerner alle enhedslogin, som programmet har gemt i Windows Legitimationsstyring. Standard login beholdes.</value>
+  </data>
+  <data name="RemoveFromCredentialManager" xml:space="preserve">
+    <value>Fjern fra Legitimationsstyring</value>
+  </data>
+  <data name="RemoveAllDevicesFromCredentialManager" xml:space="preserve">
+    <value>Fjern alle enheder fra Legitimationsstyring</value>
+  </data>
+  <data name="RemoveDeviceFromCredentialManagerConfirm" xml:space="preserve">
+    <value>Fjern login for {0} fra Legitimationsstyring, inklusiv enhedens eget login? Enheden får standard login igen ved næste scanning, eller når standard login gemmes.</value>
+  </data>
+  <data name="RemoveAllDevicesConfirm" xml:space="preserve">
+    <value>Fjern login for alle enheder, inklusiv enhedernes egne login? Standard login beholdes, og enhederne får det igen ved næste scanning, eller når standard login gemmes.</value>
+  </data>
+  <data name="RemovedFromCredentialManager" xml:space="preserve">
+    <value>Fjernet fra Legitimationsstyring</value>
+  </data>
+  <data name="RemovedDevicesFromCredentialManager" xml:space="preserve">
+    <value>Fjernede {0} enheder fra Legitimationsstyring</value>
+  </data>
+  <data name="NoNetworkCredential" xml:space="preserve">
+    <value>Der er intet login gemt i Legitimationsstyring for denne enhed</value>
+  </data>
+</root>

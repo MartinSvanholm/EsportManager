@@ -1,0 +1,42 @@
+@using CliWrap
+@using EsportManager.Features.Process
+@using EsportManager.Features.Process.Models
+@using EsportManager.Features.Process.PingProcess.Models
+@using EsportManager.Features.Process.WakeOnLanProcess.Models
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+@inject ProcessLoggerFactory _loggerFactory
+
+@if (Device != null)
+{
+    <MudTooltip Text="@AppStrings.TurnOn" Placement="Placement.Top"><MudIconButton OnClick="TurnOnDevice" Icon="@Icons.Material.Filled.Power" Class="pa-0" /></MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public Device Device { get; set; }
+
+    private const int WakeConfirmPingAttempts = 20;
+    private const int WakeConfirmPingIntervalSeconds = 3;
+
+    private void TurnOnDevice()
+    {
+        var wakeOnLanCmd = Cli.Wrap("WakeMeOnLan.exe")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($"/wakeup {Device.MACAdress}")
+            .WithValidation(CommandResultValidation.None);
+
+        var pingCmd = Cli.Wrap("ping")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($"-n {WakeConfirmPingAttempts} -w {WakeConfirmPingIntervalSeconds * 1000} {Device.IPAddress}")
+            .WithValidation(CommandResultValidation.None);
+
+        Device.EnqueueProcesses([
+            new WakeOnLanProcess(AppStrings.WakeOnLan, wakeOnLanCmd, _loggerFactory.CreateWakeOnLanLogger(Device.Name)),
+            new PingProcess(AppStrings.PingStepName, pingCmd, WakeConfirmPingAttempts, WakeConfirmPingIntervalSeconds, _loggerFactory.CreatePingLogger(Device.Name))
+        ]);
+
+        Device.ShowDetails = true;
+    }
+}

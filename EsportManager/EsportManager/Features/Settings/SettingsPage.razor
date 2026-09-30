@@ -1,0 +1,117 @@
+@page "/settings"
+@using EsportManager.Features.Credentials
+@using EsportManager.Features.Credentials.Components
+@using EsportManager.Features.Credentials.Models
+@using EsportManager.Features.Devices
+@using EsportManager.Features.Settings.SetupScript
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@inject CredentialStore _credentialStore
+@inject DeviceStore _deviceStore
+@inject ISnackbar _snackbar
+@inject IDialogService _dialogService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-5">
+    <MudText Typo="Typo.h5" Class="mb-4">@AppStrings.Settings</MudText>
+    <MudGrid>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard Style="height: 100%">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">@AppStrings.DefaultCopyCredentials</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent Class="flex-grow-1">
+                    <MudText Typo="Typo.body2" Class="mb-4">@AppStrings.DefaultCopyCredentialsDescription</MudText>
+                    <CredentialFields @bind-UserName="_userName" @bind-Password="_password" />
+                    <MudButton OnClick="Save" Variant="Variant.Filled" Color="Color.Primary" FullWidth Class="mt-4">@AppStrings.Save</MudButton>
+                    <MudDivider Class="my-6" />
+                    <MudText Typo="Typo.body2" Class="mb-3">@AppStrings.CredentialManagerDescription</MudText>
+                    <MudButton OnClick="RemoveAllDevices" Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" FullWidth>@AppStrings.RemoveAllDevicesFromCredentialManager</MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6" lg="4">
+            <MudCard Style="height: 100%">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">@AppStrings.SetupScript</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent Class="flex-grow-1">
+                    <MudText Typo="Typo.body2">@AppStrings.SetupScriptDescription</MudText>
+                </MudCardContent>
+                <MudCardActions Class="pa-4">
+                    <DownloadSetupScriptButton />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string _userName = CredentialStore.DefaultUserName;
+    private string _password = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            CopyCredential? defaultCredential = _credentialStore.GetDefault();
+            if (defaultCredential != null)
+            {
+                _userName = defaultCredential.UserName;
+                _password = defaultCredential.Password;
+            }
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(_userName) || string.IsNullOrEmpty(_password))
+        {
+            _snackbar.Add(AppStrings.UserNameAndPasswordRequired, Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            await _deviceStore.EnsureLoadedAsync();
+            int appliedCount = _credentialStore.SaveDefault(new CopyCredential(_userName.Trim(), _password), _deviceStore.Devices);
+
+            _snackbar.Add(string.Format(AppStrings.CredentialsSavedForDevices, appliedCount), Severity.Success);
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private async Task RemoveAllDevices()
+    {
+        bool? confirmed = await _dialogService.ShowMessageBox(
+            AppStrings.RemoveAllDevicesFromCredentialManager,
+            AppStrings.RemoveAllDevicesConfirm,
+            yesText: AppStrings.Remove,
+            cancelText: AppStrings.Cancel);
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        try
+        {
+            int removedCount = _credentialStore.RemoveAllDevices();
+            _snackbar.Add(string.Format(AppStrings.RemovedDevicesFromCredentialManager, removedCount), Severity.Success);
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+}

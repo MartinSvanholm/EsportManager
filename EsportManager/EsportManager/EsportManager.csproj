@@ -63,6 +63,23 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
         <PackageReference Include="MudBlazor" Version="8.15.0" />
+        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Resources\Strings\AppStrings.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>AppStrings.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\Strings\AppStrings.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>AppStrings.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -72,6 +89,12 @@
       <MauiAsset Update="Resources\Raw\WakeMeOnLan.exe">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </MauiAsset>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Features\Devices\CheckDeviceStatus\" />
+      <Folder Include="Features\Devices\ShowDetails\" />
+      <Folder Include="Shared\Robocopy\" />
     </ItemGroup>
 
 </Project>

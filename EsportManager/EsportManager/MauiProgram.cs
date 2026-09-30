@@ -1,5 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
+using EsportManager.Features.Credentials;
+using EsportManager.Features.Devices;
+using EsportManager.Features.Process;
 
 namespace EsportManager
 {
@@ -15,6 +19,10 @@ namespace EsportManager
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+            builder.Services.AddSingleton<LaunchSettings>();
+            builder.Services.AddSingleton<ProcessLoggerFactory>();
+            builder.Services.AddSingleton<CredentialStore>();
+            builder.Services.AddSingleton<DeviceStore>();
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices()
                 .AddMudBlazorSnackbar((config) =>
@@ -22,6 +30,19 @@ namespace EsportManager
                     config.PreventDuplicates = true;
                     config.ClearAfterNavigation = true;
                 });
+
+#if WINDOWS
+            builder.ConfigureLifecycleEvents(events =>
+            {
+                events.AddWindows(windows => windows.OnWindowCreated(window =>
+                {
+                    if (window.AppWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter presenter)
+                    {
+                        presenter.Maximize();
+                    }
+                }));
+            });
+#endif
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

@@ -1,0 +1,33 @@
+@using CliWrap
+@using EsportManager.Features.Process
+@using EsportManager.Features.Process.Models
+@using EsportManager.Features.Process.PingProcess.Models
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+@inject ProcessLoggerFactory _loggerFactory
+
+@if (Device != null)
+{
+    <MudTooltip Text="@AppStrings.CheckStatus" Placement="Placement.Top"><MudIconButton OnClick="CheckDeviceStatus" Icon="@Icons.Material.Filled.WifiFind" Class="pa-0" /></MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public Device Device { get; set; }
+
+    private const int CheckStatusPingAttempts = 1;
+    private const int CheckStatusPingIntervalSeconds = 5;
+
+    private void CheckDeviceStatus()
+    {
+        var pingCmd = Cli.Wrap("ping")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($"-n {CheckStatusPingAttempts} -w {CheckStatusPingIntervalSeconds * 1000} {Device.IPAddress}")
+            .WithValidation(CommandResultValidation.None);
+
+        Device.EnqueueProcess(new PingProcess(AppStrings.PingStepName, pingCmd, CheckStatusPingAttempts, CheckStatusPingIntervalSeconds, _loggerFactory.CreatePingLogger(Device.Name)));
+
+        Device.ShowDetails = true;
+    }
+}

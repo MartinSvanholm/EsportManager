@@ -1,0 +1,16 @@
+@using System.Net
+@using EsportManager.Features.Devices.Models
+@using EsportManager.Resources.Strings
+@using MudBlazor
+
+@if (Device != null)
+{
+    <MudTooltip Text="@AppStrings.DeviceSettings" Placement="Placement.Top">
+        <MudIconButton Href="@($"/devices/{Device.IPAddress}")" Disabled="Device.IPAddress.Equals(IPAddress.None)" Icon="@Icons.Material.Filled.Settings" Class="pa-0" />
+    </MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public Device? Device { get; set; }
+}

@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# EsportManager: generated network scan output (WakeMeOnLan.exe /scan), machine-specific, not source
+/EsportManager/EsportManager/devices

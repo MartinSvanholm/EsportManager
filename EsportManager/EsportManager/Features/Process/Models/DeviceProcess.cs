@@ -1,27 +1,29 @@
 ﻿using CliWrap.EventStream;
-using System.ComponentModel;
+using EsportManager.Resources.Strings;
+using Serilog;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace EsportManager.Features.Devices.Models;
+namespace EsportManager.Features.Process.Models;
 
 public class DeviceProcess
 {
-    public DeviceProcess(CliWrap.Command command)
+    public DeviceProcess(string name, CliWrap.Command command)
     {
+        _name = name;
         _command = command;
-        LogPath = string.Empty;
-        _status = ProcessStatusEnum.Initialized;
+        _status = ProcessStatus.Initialized;
         _output = string.Empty;
         _cancellationTokenSource = new CancellationTokenSource();
     }
-     
-    public DeviceProcess(CliWrap.Command command, string logPath)
+
+    public DeviceProcess(string name, CliWrap.Command command, Serilog.ILogger logger)
     {
+        _name = name;
         _command = command;
-        LogPath = logPath;
-        _status = ProcessStatusEnum.Initialized;
+        _logger = logger;
+        _status = ProcessStatus.Initialized;
         _output = string.Empty;
         _cancellationTokenSource = new CancellationTokenSource();
     }
@@ -32,19 +34,28 @@ public class DeviceProcess
         get => _id;
     }
 
+    private string _name { get; set; }
+    public string Name
+    {
+        get => _name;
+    }
+
     private CliWrap.Command _command { get; set; }
     public CliWrap.Command Command
     {
         get => _command;
     }
 
-    private ProcessStatusEnum _status { get; set; }
-    public ProcessStatusEnum Status
+    protected ProcessStatus? _customStatus { get; set; }
+    protected ProcessStatus _status { get; set; }
+    public ProcessStatus Status
     {
-        get => _status;
+        get => _customStatus ?? _status;
     }
 
-    public bool IsRunning => Status == ProcessStatusEnum.Running;
+    public bool IsRunning => Status == ProcessStatus.Running;
+
+    public bool HasError => Status.IsError;
 
     private string _output { get; set; }
     public string Output
@@ -64,18 +75,10 @@ public class DeviceProcess
         get => _cancellationTokenSource;
     }
 
-    private string DoneMessage { get; set; }
+    private Serilog.ILogger? _logger { get; set; }
+    private bool CancelRequestedByUser { get; set; }
 
-    private string LogPath { get; set; }
-
-    public delegate Task ProcessChangedHandler(CommandEvent commandEvent, DeviceProcess process);
-    public event ProcessChangedHandler? ProcessChanged;
-    private void OnProcessChanged(CommandEvent commandEvent)
-    {
-        ProcessChanged?.Invoke(commandEvent, this);
-    }
-
-    public async Task<CommandEvent?> Run()
+    public async Task Run()
     {
         try
         {
@@ -94,69 +97,68 @@ public class DeviceProcess
                         break;
                     case ExitedCommandEvent exited:
                         HandleExited(exited);
-                        return exited;
+                        break;
                 }
             }
         }
         catch (OperationCanceledException oce)
         {
-            _status = ProcessStatusEnum.CancelledByUser;
-            Debug.WriteLine($"Process cancelled by user: {oce.Message}");
+            if (CancelRequestedByUser)
+            {
+                _status = ProcessStatus.CancelledByUser;
+                Debug.WriteLine($"Process cancelled by user: {oce.Message}");
+                return;
+            }
 
-            OnProcessChanged(new ExitedCommandEvent(0));
+            _status = ProcessStatus.FinishedWithError;
+            Debug.WriteLine($"Process cancelled due to an error: {oce.Message}");
         }
         catch (Exception e)
         {
-            _status = ProcessStatusEnum.FinishedWithError;
+            _status = ProcessStatus.FinishedWithError;
             Debug.WriteLine($"An error happened: {e.Message}");
-
-            OnProcessChanged(new ExitedCommandEvent(0));
         }
-
-        return null;
     }
 
-    public void Cancel()
+    public void Cancel(bool requestedByUser = false, ProcessStatus? processStatus = null)
     {
+        if (processStatus != null)
+        {
+            _customStatus = processStatus;
+        }
+
+        CancelRequestedByUser = requestedByUser;
         CancellationTokenSource.Cancel();
     }
 
-    private void HandleStarted(StartedCommandEvent started)
+    public virtual void HandleStarted(StartedCommandEvent started)
     {
         _id = started.ProcessId;
-        _status = ProcessStatusEnum.Running;
+        _status = ProcessStatus.Running;
 
-        SetOutput($"Process started; ID: {started.ProcessId}");
+        SetOutput(string.Format(AppStrings.ProcessStarted, started.ProcessId));
         Debug.WriteLine($"Process started; ID: {started.ProcessId}");
-
-        OnProcessChanged(started);
     }
     
-    private void HandleStandardOutput(StandardOutputCommandEvent stdOut)
+    public virtual void HandleStandardOutput(StandardOutputCommandEvent stdOut)
     {
         SetOutput($"{stdOut.Text}");
         Debug.WriteLine($"Out> {stdOut.Text}");
-
-        OnProcessChanged(stdOut);
     }
 
-    private void HandleStandardError(StandardErrorCommandEvent stdErr)
+    public virtual void HandleStandardError(StandardErrorCommandEvent stdErr)
     {
         SetOutput($"{stdErr.Text}");
         Debug.WriteLine($"Err> {stdErr.Text}");
-
-        OnProcessChanged(stdErr);
     }
 
-    private void HandleExited(ExitedCommandEvent exited)
+    public virtual void HandleExited(ExitedCommandEvent exited)
     {
-        _status = ProcessStatusEnum.Finished;
+        _status = ProcessStatus.Finished;
 
-        string output = $"Process exited with code {exited.ExitCode}";
+        string output = string.Format(AppStrings.ProcessExitedWithCode, exited.ExitCode);
         SetOutput(output);
         Debug.WriteLine(output);
-
-        OnProcessChanged(exited);
     }
 
     private void SetOutput(string output)
@@ -165,10 +167,7 @@ public class DeviceProcess
 
         if (IsInvalidOutput(output)) return;
 
-        if (!string.IsNullOrWhiteSpace(LogPath))
-        {
-            File.AppendAllLines(LogPath, [output]);
-        }
+        _logger?.Information(output);
 
         Regex regex = new(@"^\d+(\.\d+)?%$");
         if (regex.IsMatch(output))
@@ -197,16 +196,5 @@ public class DeviceProcess
             default: 
                 return false;
         }
-    }
-
-    public enum ProcessStatusEnum
-    {
-        Initialized,
-        Running,
-        Finished,
-        [Description("Finished with error")]
-        FinishedWithError,
-        [Description("Cancelled by user")]
-        CancelledByUser
     }
 }

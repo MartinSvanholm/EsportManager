@@ -1,0 +1,82 @@
+﻿@using CliWrap
+@using EsportManager.Features.Process
+@using EsportManager.Features.Process.Models
+@using EsportManager.Features.Process.RobocopyProcess.Models
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+@using EsportManager.Resources.Strings
+@inject ISnackbar _snackbar
+@inject LaunchSettings _launchSettings
+@inject ProcessLoggerFactory _loggerFactory
+
+@if (Device != null)
+{
+    <MudTooltip Text="@AppStrings.UpdateFortnite" Placement="Placement.Top">
+        <MudIconButton OnClick="UpdateFortnite" Icon="@Icons.Material.Filled.Update" Class="pa-0" />
+    </MudTooltip>
+}
+
+@code {
+    [Parameter]
+    public Device? Device { get; set; }
+
+    public Serilog.ILogger Logger { get; set; }
+
+    public async Task UpdateFortnite()
+    {
+        try
+        {
+            if (Device == null)
+            {
+                _snackbar.Add(AppStrings.DeviceIsNull, Severity.Error);
+                return;
+            }
+
+            Logger = _loggerFactory.CreateUpdateFortniteLogger(Device.Name);
+
+            List<DeviceProcess> processes = [];
+
+            processes.Add(CopyFortniteGameFiles());
+            processes.Add(CopyFortniteManiFestFiles());
+
+            Device.EnqueueProcesses(processes);
+            Device.ShowDetails = true;
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+
+    private RobocopyProcess CopyFortniteGameFiles()
+    {
+        var cmd = Cli.Wrap($"robocopy")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($@"\\{_launchSettings.Server}\Fortnite \\{Device.IPAddress.ToString()}\{FortniteShares.GameFiles} /MIR /FFT /COPY:DAT /DCOPY:DAT")
+            .WithValidation(CommandResultValidation.None);
+
+        var process = new RobocopyProcess(
+            name: AppStrings.CopyFortniteGameFiles,
+            command: cmd,
+            logger: Logger
+        );
+
+        return process;
+    }
+
+    private RobocopyProcess CopyFortniteManiFestFiles()
+    {
+        var cmd = Cli.Wrap($"robocopy")
+            .WithWorkingDirectory(Environment.CurrentDirectory)
+            .WithArguments($@"\\{_launchSettings.Server}\FortniteManifests \\{Device.IPAddress.ToString()}\{FortniteShares.Manifests} /E /COPY:DAT")
+            .WithValidation(CommandResultValidation.None);
+
+        var process = new RobocopyProcess(
+            name: AppStrings.CopyFortniteManifests,
+            command: cmd,
+            logger: Logger
+        );
+
+        return process;
+    }
+}

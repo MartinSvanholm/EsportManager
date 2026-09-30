@@ -1,0 +1,32 @@
+@using EsportManager.Features.Credentials
+@using EsportManager.Features.Credentials.Models
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@inject CredentialStore _credentialStore
+@inject ISnackbar _snackbar
+
+<MudButton OnClick="Download" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Download">@AppStrings.DownloadSetupScript</MudButton>
+
+@code {
+    private async Task Download()
+    {
+        try
+        {
+            CopyCredential? defaultCredential = _credentialStore.GetDefault();
+            if (defaultCredential == null)
+            {
+                _snackbar.Add(AppStrings.SaveDefaultCredentialsFirst, Severity.Warning);
+                return;
+            }
+
+            string path = await SetupScriptGenerator.SaveToDownloadsAsync(defaultCredential.UserName);
+            _snackbar.Add(string.Format(AppStrings.SetupScriptSaved, path), Severity.Success);
+
+            await SetupScriptGenerator.ShowInExplorerAsync(path);
+        }
+        catch (Exception e)
+        {
+            _snackbar.Add(e.Message, Severity.Error);
+        }
+    }
+}

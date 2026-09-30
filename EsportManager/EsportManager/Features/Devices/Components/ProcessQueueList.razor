@@ -1,0 +1,149 @@
+@using EsportManager.Features.Process.Models
+@using EsportManager.Features.Process.PingProcess.Models
+@using EsportManager.Resources.Strings
+@using MudBlazor
+@using EsportManager.Features.Devices.Models
+@inject ISnackbar _snackbar
+
+<MudStack>
+    @if (Device.Plan.Steps.Count > 0)
+    {
+        <MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">@AppStrings.TaskQueue</MudText>
+            @if (Device.Plan.State == DevicePlan.PlanState.Draft)
+            {
+                <MudButton OnClick="ExecutePlan" Variant="Variant.Filled" Color="Color.Info" Size="Size.Small">@AppStrings.StartQueue</MudButton>
+            }
+            <MudTooltip Text="@AppStrings.ClearQueue" Placement="Placement.Top"><MudIconButton OnClick="() => Device.ClearQueue()" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
+        </MudStack>
+        <MudStack Row Justify="Justify.FlexStart">
+            @foreach (var process in Device.Plan.Steps)
+            {
+                <MudCard>
+                    <MudCardHeader Class="pb-0">
+                        <CardHeaderContent>
+                            <MudStack Row AlignItems="AlignItems.Center">
+                                <MudText>@process.Name</MudText>
+                                @if (process != null && process.IsRunning)
+                                {
+                                    <MudTooltip Text="@AppStrings.StopUpdate" Placement="Placement.Top"><MudIconButton OnClick="() => process.Cancel(true)" Icon="@Icons.Material.Filled.DoNotDisturb" Class="pa-0" Color="Color.Error" /></MudTooltip>
+                                }
+                            </MudStack>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudStack Spacing="0" Row>
+                            @if (process.IsRunning)
+                            {
+                                <MudProgressCircular Color="Color.Info" Value="GetProgressValue(process)" Indeterminate="GetProgressValue(process) == 0" Size="Size.Small" />
+                            }
+                            else
+                            {
+                                <MudIcon Color="@GetProcessStatusColor(process)" Size="Size.Small" Icon="@GetProcessStatusIcon(process)" />
+                            }
+                            <MudText Class="mx-2">@AppStrings.StatusLabel</MudText>
+                            <MudText>@process.Status</MudText>
+                        </MudStack>
+                        @if (process is PingProcess pingProcess)
+                        {
+                            <MudStack Spacing="0" Row>
+                                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Repeat" />
+                                <MudText Class="mx-2">@string.Format(AppStrings.PingAttempt, pingProcess.AttemptNumber, pingProcess.TotalAttempts)</MudText>
+                                @if (pingProcess.IsRunning)
+                                {
+                                    <MudText>@string.Format(AppStrings.PingNextAttemptIn, GetSecondsUntilNextPing(pingProcess))</MudText>
+                                }
+                            </MudStack>
+                        }
+                        <MudStack Spacing="0" Row>
+                            <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.ShortText" />
+                            <MudText Class="mx-2">@AppStrings.OutputLabel</MudText>
+                            <MudText>@process?.Output</MudText>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            }
+        </MudStack>
+    }
+</MudStack>
+
+@code {
+    [Parameter]
+    public Device Device { get; set; }
+
+    private async Task ExecutePlan()
+    {
+        await Device.ExecutePlan();
+
+        var lastPing = Device.Plan.Steps.OfType<PingProcess>().LastOrDefault();
+        if (lastPing != null)
+        {
+            bool isOnline = lastPing.IsOnline == true;
+
+            Device.SetStatus(isOnline ? Device.StatusEnum.Online : Device.StatusEnum.Offline);
+            _snackbar.Add(
+                string.Format(isOnline ? AppStrings.DeviceIsOnline : AppStrings.DeviceIsOffline, Device.Name),
+                isOnline ? Severity.Success : Severity.Error);
+        }
+    }
+
+    private int GetProgressValue(DeviceProcess process)
+    {
+        if (process is PingProcess pingProcess && pingProcess.TotalAttempts > 0)
+        {
+            return (int)Math.Round(100.0 * pingProcess.AttemptNumber / pingProcess.TotalAttempts);
+        }
+
+        return process.Progress;
+    }
+
+    private int GetSecondsUntilNextPing(PingProcess process)
+    {
+        if (process.LastAttemptAt == null)
+        {
+            return process.IntervalSeconds;
+        }
+
+        double remaining = process.IntervalSeconds - (DateTime.UtcNow - process.LastAttemptAt.Value).TotalSeconds;
+
+        return (int)Math.Max(0, Math.Ceiling(remaining));
+    }
+
+    private string GetProcessStatusIcon(DeviceProcess process)
+    {
+        if (process.Status == ProcessStatus.Initialized)
+            return Icons.Material.Filled.Start;
+
+        if (process.Status == ProcessStatus.CancelledByUser)
+            return Icons.Material.Filled.Cancel;
+
+        return process.Status.Severity switch
+        {
+            Severity.Success => Icons.Material.Filled.Done,
+            Severity.Warning => Icons.Material.Filled.Warning,
+            Severity.Error => Icons.Material.Filled.Error,
+            Severity.Info => Icons.Material.Filled.Info,
+            _ => Icons.Material.Filled.Circle,
+        };
+    }
+
+    private Color GetProcessStatusColor(DeviceProcess process)
+    {
+        if (process.Status.Severity == Severity.Normal)
+            return Color.Default;
+
+        if (process.Status.Severity == Severity.Success)
+            return Color.Success;
+
+        if (process.Status.Severity == Severity.Info)
+            return Color.Info;
+
+        if (process.Status.Severity == Severity.Warning)
+            return Color.Warning;
+
+        if (process.Status.Severity == Severity.Error)
+            return Color.Error;
+
+        return Color.Default;
+    }
+}
